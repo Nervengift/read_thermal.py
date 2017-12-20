@@ -1,3 +1,12 @@
+# Background
+
+FLIR® thermal cameras like the FLIR ONE® include both a thermal and a visual light camera.
+The latter is used to enhance the thermal image using an edge detector.
+
+The resulting image is saved as a jpg image but both the original visual image and the raw thermal sensor data are embedded in the jpg metadata.
+
+This small Python tool/library allows to extract the original photo and thermal sensor values converted to temperatures.
+
 # Usage
 
 This tool relies on `exiftool`. It should be available in most Linux distributions (e.g. as `perl-image-exiftool` in Arch Linux or `libimage-exiftool-perl` in Debian and Ubuntu).
