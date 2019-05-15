@@ -250,13 +250,21 @@ class FlirImageExtractor:
 
         with open(csv_filename, 'w') as fh:
             writer = csv.writer(fh, delimiter=',')
-            writer.writerow(['x', 'y', 'temp (c)'])
 
-            pixel_values = []
+            pixel_values = [[]]
             for e in np.ndenumerate(self.thermal_image_np):
+                current_y = 0
+
                 x, y = e[0]
-                c = e[1]
-                pixel_values.append([x, y, c])
+
+                if y>current_y:
+                    pixel_values.append(['%'])
+                    current_y = y
+
+                c = e[1].round(1)
+                pixel_values[y].append(c)
+
+                # pixel_values.append([x, y, c])
 
             writer.writerows(pixel_values)
 
