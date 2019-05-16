@@ -3,3 +3,7 @@
 *.jpg
 *.png
 *.csv
+/test.py
+__pycache__
+__pycache__/
+__pycache__/*

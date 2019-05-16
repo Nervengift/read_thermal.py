@@ -14,9 +14,9 @@ This tool relies on `exiftool`. It should be available in most Linux distributio
 It also needs the Python packages *numpy* and *matplotlib* (the latter only if used interactively).
 
 ```bash
-# sudo apt update
-# sudo apt install exiftool
-# sudo pip install numpy matplotlib
+sudo apt update
+sudo apt install exiftool
+sudo pip install numpy matplotlib
 ```
 
 ## Usage
@@ -25,9 +25,9 @@ This module can be used by importing it:
 
 ```python
 import flir_image_extractor
-fir = flir_image_extractor.FlirImageExtractor()
-fir.process_image('examples/ax8.jpg')
-fir.plot()
+flir = flir_image_extractor.FlirImageExtractor()
+flir.process_image('examples/ax8.jpg')
+flir.plot()
 ```
 
 Or by calling it as a script:
@@ -54,7 +54,7 @@ optional arguments:
   -d, --debug           Set the debug flag
 ```
 
-This command will show an interactive plot of the thermal image using matplotlib and create two image files *flir_example_thermal.png* and *flir_example_rgb_image.jpg*. 
+This command will show an interactive plot of the thermal image using matplotlib and create two image files *flir_example_thermal.jpg* and *flir_example_rgb_image.jpg*. 
 Both are RGB images, the original temperature array is available using the `get_thermal_np` or `export_thermal_to_csv` functions.
 
 The functions `get_rgb_np` and `get_thermal_np` yield numpy arrays and can be called from your own script after importing this lib.
