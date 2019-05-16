@@ -27,37 +27,16 @@ This module can be used by importing it:
 import flir_image_extractor
 flir = flir_image_extractor.FlirImageExtractor()
 flir.process_image('examples/ax8.jpg')
+flir.save_image('examples/ax8_thermal.jpg')
 flir.plot()
-```
-
-Or by calling it as a script:
-
-```bash
-python flir_image_extractor.py -p -i 'examples/zenmuse_xtr.jpg'
-```
-
-```bash
-usage: flir_image_extractor.py [-h] -i INPUT [-p] [-exif EXIFTOOL]
-                               [-csv EXTRACTCSV] [-d]
-
-Extract and visualize Flir Image data
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -i INPUT, --input INPUT
-                        Input image. Ex. img.jpg
-  -p, --plot            Generate a plot using matplotlib
-  -exif EXIFTOOL, --exiftool EXIFTOOL
-                        Custom path to exiftool
-  -csv EXTRACTCSV, --extractcsv EXTRACTCSV
-                        Export the thermal data per pixel encoded as csv file
-  -d, --debug           Set the debug flag
 ```
 
 This command will show an interactive plot of the thermal image using matplotlib and create two image files *flir_example_thermal.jpg* and *flir_example_rgb_image.jpg*. 
 Both are RGB images, the original temperature array is available using the `get_thermal_np` or `export_thermal_to_csv` functions.
 
 The functions `get_rgb_np` and `get_thermal_np` yield numpy arrays and can be called from your own script after importing this lib.
+
+The function `save_image` saves the image at the given filepath
 
 ## Supported/Tested cameras:
 
