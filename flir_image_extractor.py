@@ -268,6 +268,30 @@ class FlirImageExtractor:
 
             writer.writerows(pixel_values)
 
+    def export_thermal_to_string(self):
+        """
+        Convert thermal data in numpy to csv
+        :return:
+        """
+
+        si = StringIO.StringIO()
+        writer = csv.writer(si, delimiter=',')
+
+        pixel_values = [[]]
+        current_x = 0
+        for e in np.ndenumerate(self.thermal_image_np):
+            x, y = e[0]
+
+            if x > current_x:
+                pixel_values.append([])
+                current_x = x
+
+            c = e[1].round(2)
+            pixel_values[x].append(c)
+
+        writer.writerows(pixel_values)
+        return si
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Extract and visualize Flir Image data')
