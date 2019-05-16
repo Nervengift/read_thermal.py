@@ -27,7 +27,7 @@ class FlirImageExtractor:
         self.flir_img_filename = ""
         self.image_suffix = "_rgb_image.jpg"
         self.thumbnail_suffix = "_rgb_thumb.jpg"
-        self.thermal_suffix = "_thermal.png"
+        self.thermal_suffix = "_thermal.jpg"
         self.default_distance = 1.0
 
         # valid for PNG thermal images
@@ -239,12 +239,15 @@ class FlirImageExtractor:
             print("DEBUG Saving RGB image to:{}".format(image_filename))
             print("DEBUG Saving Thermal image to:{}".format(thermal_filename))
 
-        img_visual.save(image_filename)
-        img_thermal.save(thermal_filename)
+        img_visual.save(image_filename, "JPEG")
+
+        # convert to jpeg and save
+        img_thermal = img_thermal.convert("RGB")
+        img_thermal.save(thermal_filename, "jpeg", quality=95)
 
     def export_thermal_to_csv(self, csv_filename):
         """
-        Convert thermal data in numpy to json
+        Convert thermal data in numpy to csv
         :return:
         """
 
@@ -262,8 +265,6 @@ class FlirImageExtractor:
 
                 c = e[1].round(2)
                 pixel_values[x].append(c)
-
-                # pixel_values.append([x, y, c])
 
             writer.writerows(pixel_values)
 
