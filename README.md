@@ -7,21 +7,15 @@ The resulting image is saved as a jpg image but both the original visual image a
 
 This small Python tool/library allows to extract the original photo and thermal sensor values converted to temperatures.
 
-## Requirements
+## Requirements and Install
 
 This tool relies on `exiftool`. It should be available in most Linux distributions (e.g. as `perl-image-exiftool` in Arch Linux or `libimage-exiftool-perl` in Debian and Ubuntu). Links for downloading the Mac version and more information is available on the [ExifTool site](https://sno.phy.queensu.ca/~phil/exiftool/index.html).
 
-It also needs the Python packages *numpy* and *matplotlib* (the latter only if used interactively).
+It also requires other python packages, *matplotlib*, *numpy* and *pillow*, which are installed when installed through pip.
 
 ```bash
 sudo apt update
 sudo apt install exiftool
-sudo pip install numpy matplotlib
-```
-
-## Install
-Install through pip.
-```bash
 pip install flirimageextractor
 ```
 
