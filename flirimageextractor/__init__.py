@@ -11,7 +11,7 @@ import os.path
 import re
 import csv
 import subprocess
-from PIL import Image
+from PIL import Image, ImageEnhance
 from math import sqrt, exp, log
 from matplotlib import cm
 from matplotlib import pyplot as plt
@@ -21,7 +21,7 @@ import numpy as np
 
 class FlirImageExtractor:
 
-    def __init__(self, exiftool_path="exiftool", is_debug=False):
+    def __init__(self, exiftool_path="exiftool", is_debug=False, palettes=[cm.bwr, cm.gnuplot2, cm.gist_ncar]):
         self.exiftool_path = exiftool_path
         self.is_debug = is_debug
         self.flir_img_filename = ""
@@ -35,6 +35,8 @@ class FlirImageExtractor:
 
         self.rgb_image_np = None
         self.thermal_image_np = None
+
+        self.palettes = palettes
 
     pass
 
@@ -91,8 +93,6 @@ class FlirImageExtractor:
         extracts the visual image as 2D numpy array of RGB values
         """
         image_tag = "-EmbeddedImage"
-        if self.use_thumbnail:
-            image_tag = "-ThumbnailImage"
 
         visual_img_bytes = subprocess.check_output([self.exiftool_path, image_tag, "-b", self.flir_img_filename])
         visual_img_stream = io.BytesIO(visual_img_bytes)
@@ -216,22 +216,35 @@ class FlirImageExtractor:
         plt.imshow(rgb_np)
         plt.show()
 
-    def save_image(self, thermal_output_filename):
+    def save_images(self):
         """
         Save the extracted images
         :return:
         """
         thermal_np = self.extract_thermal_image()
 
-        thermal_normalized = (thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np))
-        img_thermal = Image.fromarray(np.uint8(cm.inferno(thermal_normalized) * 255))
+        thermal_normalized = (((thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np))))
 
-        if self.is_debug:
-            print("DEBUG Saving Thermal image to:{}".format(thermal_output_filename))
+        thermal_output_filename_array = self.flir_img_filename.split(".")
+        thermal_output_filename = thermal_output_filename_array[0] + "_thermal." + thermal_output_filename_array[1]
 
-        # convert to jpeg and save
-        img_thermal = img_thermal.convert("RGB")
-        img_thermal.save(thermal_output_filename, "jpeg", quality=95)
+        for palette in self.palettes:
+            img_thermal = Image.fromarray(palette(thermal_normalized, bytes=True))
+
+            filename_array = thermal_output_filename.split(".")
+            filename = filename_array[0] + "_" + str(palette.name) + "." + filename_array[1]
+
+
+            if self.is_debug:
+                print("DEBUG Saving Thermal image to:{}".format(filename))
+
+            # convert to jpeg and save
+            img_thermal = img_thermal.convert("RGB")
+
+            enhancer = ImageEnhance.Sharpness(img_thermal)
+            img_thermal = enhancer.enhance(3)
+
+            img_thermal.save(filename, "jpeg", quality=100)
 
     def export_thermal_to_csv(self, csv_filename):
         """
@@ -255,6 +268,9 @@ class FlirImageExtractor:
                 pixel_values[x].append(c)
 
             writer.writerows(pixel_values)
+
+    def reject_outliers(data, m=2):
+        return data[abs(data - np.mean(data)) < m * np.std(data)]
 
 
 if __name__ == '__main__':
