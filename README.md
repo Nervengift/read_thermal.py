@@ -49,7 +49,7 @@ The function `check_for_thermal_image` will check the metadata of the image to s
 
 The functions `get_rgb_np` and `get_thermal_np` yield numpy arrays and can be called from your own script after importing this library.
 
-The function `save_image` saves the thermal image(s) in the same folder as the original image. By default it will output three images using the `bwr`, `gnuplot`, and `gist_ncar` colormaps from matplotlib. You can define the pallete(s) that you would rather use when creating the class (see example). For a list of available matplotlib colormaps click [here](https://matplotlib.org/tutorials/colors/colormaps.html).
+The function `save_image` saves the thermal image(s) in the same folder as the original image. By default it will output three images using the `bwr`, `gnuplot`, and `gist_ncar` colormaps from matplotlib. You can define the pallete(s) that you would rather use when creating the class (see example). For a list of available matplotlib colormaps click [here](https://matplotlib.org/tutorials/colors/colormaps.html). `save_images(self, min=5, max=100)` can be used to set global minimum and maximum temperature values so that multiple images can be process with the same scale.
 
 ## Supported/Tested cameras:
 

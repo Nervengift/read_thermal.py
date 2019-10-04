@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# version 1.1.0
+# version 1.2.0
 
 from __future__ import print_function
 
@@ -91,7 +91,6 @@ class FlirImageExtractor:
             self.use_thumbnail = True
             self.fix_endian = False
 
-        # self.rgb_image_np = self.extract_embedded_image()
         self.thermal_image_np = self.extract_thermal_image()
 
     def get_image_type(self):
@@ -250,14 +249,17 @@ class FlirImageExtractor:
         plt.imshow(rgb_np)
         plt.show()
 
-    def save_images(self):
+    def save_images(self, min=None, max=None):
         """
         Save the extracted images
         :return:
         """
         thermal_np = self.extract_thermal_image()
 
-        thermal_normalized = (((thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np))))
+        if min is not None and max is not None:
+            thermal_normalized = ((thermal_np - min) / max - min)
+        else:
+            thermal_normalized = ((thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np)))
 
         thermal_output_filename_array = self.flir_img_filename.split(".")
         thermal_output_filename = thermal_output_filename_array[0] + "_thermal." + thermal_output_filename_array[1]
