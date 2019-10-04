@@ -4,4 +4,5 @@ flirimageextractor/__init__.py
 flirimageextractor.egg-info/PKG-INFO
 flirimageextractor.egg-info/SOURCES.txt
 flirimageextractor.egg-info/dependency_links.txt
+flirimageextractor.egg-info/requires.txt
 flirimageextractor.egg-info/top_level.txt

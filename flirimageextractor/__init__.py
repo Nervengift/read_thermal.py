@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# version 1.1.0
 
 from __future__ import print_function
 
@@ -32,6 +33,7 @@ class FlirImageExtractor:
 
         # valid for PNG thermal images
         self.fix_endian = True
+        self.use_thumbnail = False
 
         self.rgb_image_np = None
         self.thermal_image_np = None
@@ -39,6 +41,35 @@ class FlirImageExtractor:
         self.palettes = palettes
 
     pass
+
+    def get_metadata(self, flir_img_filename):
+        """
+        Given a valid image path, get relevant metadata out of the image using exiftool
+        :param flir_img_filename: Input path for the flir image
+        :return: dictionary of metadata
+        """
+        if self.is_debug:
+            print("INFO Flir image filepath:{}".format(flir_img_filename))
+
+        if not os.path.isfile(flir_img_filename):
+            raise ValueError("Input file does not exist or this user doesn't have permission on this file")
+
+        self.flir_img_filename = flir_img_filename
+
+        meta_json = subprocess.check_output([self.exiftool_path, self.flir_img_filename, '-j'])
+
+        meta = json.loads(meta_json.decode())[0]
+
+        return meta
+
+    def check_for_thermal_image(self, flir_img_filename):
+        """
+        Given a valid image path, return a boolean of whether the image contains thermal data
+        :param flir_img_filename: Input path for the flir image
+        :return: Bool
+        """
+        metadata = self.get_metadata(flir_img_filename)
+        return 'RawThermalImageType' in metadata
 
     def process_image(self, flir_img_filename):
         """
@@ -60,7 +91,7 @@ class FlirImageExtractor:
             self.use_thumbnail = True
             self.fix_endian = False
 
-        self.rgb_image_np = self.extract_embedded_image()
+        # self.rgb_image_np = self.extract_embedded_image()
         self.thermal_image_np = self.extract_thermal_image()
 
     def get_image_type(self):
@@ -70,6 +101,7 @@ class FlirImageExtractor:
         """
         meta_json = subprocess.check_output(
             [self.exiftool_path, '-RawThermalImageType', '-j', self.flir_img_filename])
+        
         meta = json.loads(meta_json.decode())[0]
 
         return meta['RawThermalImageType']
@@ -96,6 +128,7 @@ class FlirImageExtractor:
 
         visual_img_bytes = subprocess.check_output([self.exiftool_path, image_tag, "-b", self.flir_img_filename])
         visual_img_stream = io.BytesIO(visual_img_bytes)
+        visual_img_stream.seek(0)
 
         visual_img = Image.open(visual_img_stream)
         visual_np = np.array(visual_img)
@@ -116,7 +149,8 @@ class FlirImageExtractor:
         meta = json.loads(meta_json.decode())[0]
 
         # exifread can't extract the embedded thermal image, use exiftool instead
-        thermal_img_bytes = subprocess.check_output([self.exiftool_path, "-RawThermalImage", "-b", self.flir_img_filename])
+        thermal_img_bytes = subprocess.check_output(
+            [self.exiftool_path, "-RawThermalImage", "-b", self.flir_img_filename])
         thermal_img_stream = io.BytesIO(thermal_img_bytes)
 
         thermal_img = Image.open(thermal_img_stream)
@@ -234,7 +268,6 @@ class FlirImageExtractor:
             filename_array = thermal_output_filename.split(".")
             filename = filename_array[0] + "_" + str(palette.name) + "." + filename_array[1]
 
-
             if self.is_debug:
                 print("DEBUG Saving Thermal image to:{}".format(filename))
 
@@ -251,7 +284,6 @@ class FlirImageExtractor:
         Convert thermal data in numpy to csv
         :return:
         """
-
         with open(csv_filename, 'w') as fh:
             writer = csv.writer(fh, delimiter=',')
 
@@ -260,7 +292,7 @@ class FlirImageExtractor:
             for e in np.ndenumerate(self.thermal_image_np):
                 x, y = e[0]
 
-                if x>current_x:
+                if x > current_x:
                     pixel_values.append([])
                     current_x = x
 

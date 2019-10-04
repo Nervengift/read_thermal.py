@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# version 1.0.3
 
 from __future__ import print_function
 
@@ -11,7 +12,7 @@ import os.path
 import re
 import csv
 import subprocess
-from PIL import Image
+from PIL import Image, ImageEnhance
 from math import sqrt, exp, log
 from matplotlib import cm
 from matplotlib import pyplot as plt
@@ -21,7 +22,7 @@ import numpy as np
 
 class FlirImageExtractor:
 
-    def __init__(self, exiftool_path="exiftool", is_debug=False):
+    def __init__(self, exiftool_path="exiftool", is_debug=False, palettes=[cm.bwr, cm.gnuplot2, cm.gist_ncar]):
         self.exiftool_path = exiftool_path
         self.is_debug = is_debug
         self.flir_img_filename = ""
@@ -32,11 +33,43 @@ class FlirImageExtractor:
 
         # valid for PNG thermal images
         self.fix_endian = True
+        self.use_thumbnail = False
 
         self.rgb_image_np = None
         self.thermal_image_np = None
 
+        self.palettes = palettes
+
     pass
+
+    def get_metadata(self, flir_img_filename):
+        """
+        Given a valid image path, get relevant metadata out of the image using exiftool
+        :param flir_img_filename: Input path for the flir image
+        :return: dictionary of metadata
+        """
+        if self.is_debug:
+            print("INFO Flir image filepath:{}".format(flir_img_filename))
+
+        if not os.path.isfile(flir_img_filename):
+            raise ValueError("Input file does not exist or this user doesn't have permission on this file")
+
+        self.flir_img_filename = flir_img_filename
+
+        meta_json = subprocess.check_output([self.exiftool_path, self.flir_img_filename, '-j'])
+
+        meta = json.loads(meta_json.decode())[0]
+
+        return meta
+
+    def check_for_thermal_image(self, flir_img_filename):
+        """
+        Given a valid image path, return a boolean of whether the image contains thermal data
+        :param flir_img_filename: Input path for the flir image
+        :return: Bool
+        """
+        metadata = get_metadata(flir_img_filename)
+        return 'RawThermalImageType' in metadata
 
     def process_image(self, flir_img_filename):
         """
@@ -58,7 +91,7 @@ class FlirImageExtractor:
             self.use_thumbnail = True
             self.fix_endian = False
 
-        self.rgb_image_np = self.extract_embedded_image()
+        # self.rgb_image_np = self.extract_embedded_image()
         self.thermal_image_np = self.extract_thermal_image()
 
     def get_image_type(self):
@@ -68,6 +101,7 @@ class FlirImageExtractor:
         """
         meta_json = subprocess.check_output(
             [self.exiftool_path, '-RawThermalImageType', '-j', self.flir_img_filename])
+        
         meta = json.loads(meta_json.decode())[0]
 
         return meta['RawThermalImageType']
@@ -91,11 +125,10 @@ class FlirImageExtractor:
         extracts the visual image as 2D numpy array of RGB values
         """
         image_tag = "-EmbeddedImage"
-        if self.use_thumbnail:
-            image_tag = "-ThumbnailImage"
 
         visual_img_bytes = subprocess.check_output([self.exiftool_path, image_tag, "-b", self.flir_img_filename])
         visual_img_stream = io.BytesIO(visual_img_bytes)
+        visual_img_stream.seek(0)
 
         visual_img = Image.open(visual_img_stream)
         visual_np = np.array(visual_img)
@@ -116,7 +149,8 @@ class FlirImageExtractor:
         meta = json.loads(meta_json.decode())[0]
 
         # exifread can't extract the embedded thermal image, use exiftool instead
-        thermal_img_bytes = subprocess.check_output([self.exiftool_path, "-RawThermalImage", "-b", self.flir_img_filename])
+        thermal_img_bytes = subprocess.check_output(
+            [self.exiftool_path, "-RawThermalImage", "-b", self.flir_img_filename])
         thermal_img_stream = io.BytesIO(thermal_img_bytes)
 
         thermal_img = Image.open(thermal_img_stream)
@@ -216,29 +250,40 @@ class FlirImageExtractor:
         plt.imshow(rgb_np)
         plt.show()
 
-    def save_image(self, thermal_output_filename):
+    def save_images(self):
         """
         Save the extracted images
         :return:
         """
         thermal_np = self.extract_thermal_image()
 
-        thermal_normalized = (thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np))
-        img_thermal = Image.fromarray(np.uint8(cm.inferno(thermal_normalized) * 255))
+        thermal_normalized = (((thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np))))
 
-        if self.is_debug:
-            print("DEBUG Saving Thermal image to:{}".format(thermal_output_filename))
+        thermal_output_filename_array = self.flir_img_filename.split(".")
+        thermal_output_filename = thermal_output_filename_array[0] + "_thermal." + thermal_output_filename_array[1]
 
-        # convert to jpeg and save
-        img_thermal = img_thermal.convert("RGB")
-        img_thermal.save(thermal_output_filename, "jpeg", quality=95)
+        for palette in self.palettes:
+            img_thermal = Image.fromarray(palette(thermal_normalized, bytes=True))
+
+            filename_array = thermal_output_filename.split(".")
+            filename = filename_array[0] + "_" + str(palette.name) + "." + filename_array[1]
+
+            if self.is_debug:
+                print("DEBUG Saving Thermal image to:{}".format(filename))
+
+            # convert to jpeg and save
+            img_thermal = img_thermal.convert("RGB")
+
+            enhancer = ImageEnhance.Sharpness(img_thermal)
+            img_thermal = enhancer.enhance(3)
+
+            img_thermal.save(filename, "jpeg", quality=100)
 
     def export_thermal_to_csv(self, csv_filename):
         """
         Convert thermal data in numpy to csv
         :return:
         """
-
         with open(csv_filename, 'w') as fh:
             writer = csv.writer(fh, delimiter=',')
 
@@ -247,7 +292,7 @@ class FlirImageExtractor:
             for e in np.ndenumerate(self.thermal_image_np):
                 x, y = e[0]
 
-                if x>current_x:
+                if x > current_x:
                     pixel_values.append([])
                     current_x = x
 
@@ -255,6 +300,9 @@ class FlirImageExtractor:
                 pixel_values[x].append(c)
 
             writer.writerows(pixel_values)
+
+    def reject_outliers(data, m=2):
+        return data[abs(data - np.mean(data)) < m * np.std(data)]
 
 
 if __name__ == '__main__':
