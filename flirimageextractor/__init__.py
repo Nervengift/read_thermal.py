@@ -257,7 +257,7 @@ class FlirImageExtractor:
         thermal_np = self.extract_thermal_image()
 
         if min is not None and max is not None:
-            thermal_normalized = ((thermal_np - min) / max - min)
+            thermal_normalized = ((thermal_np - min) / (max - min))
         else:
             thermal_normalized = ((thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np)))
 
