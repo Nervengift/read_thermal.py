@@ -254,6 +254,10 @@ class FlirImageExtractor:
         Save the extracted images
         :return:
         """
+        if (min is not None and max is None) or (max is not None and min is None):
+            raise Exception('Specify both a maximum and minimum temperature value, or use the default by specifying neither')
+        if max <= min:
+            raise Exception("The max value must be greater than min")
         thermal_np = self.extract_thermal_image()
 
         if min is not None and max is not None:
@@ -303,29 +307,6 @@ class FlirImageExtractor:
 
             writer.writerows(pixel_values)
 
+    @staticmethod
     def reject_outliers(data, m=2):
         return data[abs(data - np.mean(data)) < m * np.std(data)]
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Extract and visualize Flir Image data')
-    parser.add_argument('-i', '--input', type=str, help='Input image. Ex. img.jpg', required=True)
-    parser.add_argument('-p', '--plot', help='Generate a plot using matplotlib', required=False, action='store_true')
-    parser.add_argument('-exif', '--exiftool', type=str, help='Custom path to exiftool', required=False,
-                        default='exiftool')
-    parser.add_argument('-csv', '--extractcsv', help='Export the thermal data per pixel encoded as csv file',
-                        required=False)
-    parser.add_argument('-d', '--debug', help='Set the debug flag', required=False,
-                        action='store_true')
-    args = parser.parse_args()
-
-    fie = FlirImageExtractor(exiftool_path=args.exiftool, is_debug=args.debug)
-    fie.process_image(args.input)
-
-    if args.plot:
-        fie.plot()
-
-    if args.extractcsv:
-        fie.export_thermal_to_csv(args.extractcsv)
-
-    fie.save_images()
