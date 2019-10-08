@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# version 1.2.0
+# version 1.2.1
 
 from __future__ import print_function
 
