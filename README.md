@@ -57,7 +57,7 @@ The function `save_image` saves the thermal image(s) in the same folder as the o
 - Xenmuse XTR (thermal + thumbnail, set the subject distance to 1 meter)
 - AX8 (thermal + RGB)
 
-Other cameras might need some small tweaks (the embedded raw data can be in multiple image formats)
+Other cameras might need some small tweaks (the embedded raw data can be in multiple image formats). Let me know if you succesfully use other cameras so they can be added to this list.
 
 ## Credits
 
