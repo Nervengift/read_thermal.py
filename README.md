@@ -1,5 +1,7 @@
 # Flir Image Extractor
 
+Feel free to submit any pull requests or issues, this is in active development. Also let me know if you are successful in using this on cameras not listed below.
+
 FLIR® thermal cameras like the FLIR ONE® include both a thermal and a visual light camera.
 The latter is used to enhance the thermal image using an edge detector.
 
@@ -57,7 +59,7 @@ The function `save_image` saves the thermal image(s) in the same folder as the o
 - Xenmuse XTR (thermal + thumbnail, set the subject distance to 1 meter)
 - AX8 (thermal + RGB)
 
-Other cameras might need some small tweaks (the embedded raw data can be in multiple image formats)
+Other cameras might need some small tweaks (the embedded raw data can be in multiple image formats). Let me know if you succesfully use other cameras so they can be added to this list.
 
 ## Credits
 
