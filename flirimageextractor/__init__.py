@@ -71,11 +71,12 @@ class FlirImageExtractor:
         metadata = self.get_metadata(flir_img_filename)
         return 'RawThermalImageType' in metadata
 
-    def process_image(self, flir_img_filename):
+    def process_image(self, flir_img_filename, RGB=False):
         """
         Given a valid image path, process the file: extract real thermal values
         and a thumbnail for comparison (generally thumbnail is on the visible spectre)
         :param flir_img_filename: Input path for the flir image
+        :param RGB: Boolean for whether to extract the embedded RGB image
         :return:
         """
         if self.is_debug:
@@ -92,6 +93,9 @@ class FlirImageExtractor:
             self.fix_endian = False
 
         self.thermal_image_np = self.extract_thermal_image()
+
+        if RGB:
+            self.rgb_image_np = self.extract_embedded_image()
 
     def get_image_type(self):
         """
