@@ -272,6 +272,7 @@ class FlirImageExtractor:
         thermal_output_filename_array = self.flir_img_filename.split(".")
         thermal_output_filename = thermal_output_filename_array[0] + "_thermal." + thermal_output_filename_array[1]
 
+        return_array = []
         for palette in self.palettes:
             img_thermal = Image.fromarray(palette(thermal_normalized, bytes=True))
             # convert to jpeg and enhance
@@ -282,7 +283,7 @@ class FlirImageExtractor:
             if bytesIO:
                 bytes = io.BytesIO()
                 img_thermal.save(bytes, "jpeg", quality=100)
-                return bytes
+                return_array += bytes
             else:
                 filename_array = thermal_output_filename.split(".")
                 filename = filename_array[0] + "_" + str(palette.name) + "." + filename_array[1]
@@ -290,7 +291,9 @@ class FlirImageExtractor:
                     print("DEBUG Saving Thermal image to:{}".format(filename))
 
                 img_thermal.save(filename, "jpeg", quality=100)
-                return filename
+                return_array += filename
+
+            return return_array
 
     def export_thermal_to_csv(self, csv_filename):
         """
