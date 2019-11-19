@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# version 1.2.1
+# version 1.2.2
 
 from __future__ import print_function
 
@@ -249,14 +249,14 @@ class FlirImageExtractor:
         plt.imshow(rgb_np)
         plt.show()
 
-    def save_images(self, min=None, max=None):
+    def save_images(self, min=None, max=None, bytesIO=False):
         """
         Save the extracted images
         :return:
         """
         if (min is not None and max is None) or (max is not None and min is None):
             raise Exception('Specify both a maximum and minimum temperature value, or use the default by specifying neither')
-        if max <= min:
+        if max is not None and min is not None and max <= min:
             raise Exception("The max value must be greater than min")
         thermal_np = self.extract_thermal_image()
 
@@ -270,20 +270,23 @@ class FlirImageExtractor:
 
         for palette in self.palettes:
             img_thermal = Image.fromarray(palette(thermal_normalized, bytes=True))
-
-            filename_array = thermal_output_filename.split(".")
-            filename = filename_array[0] + "_" + str(palette.name) + "." + filename_array[1]
-
-            if self.is_debug:
-                print("DEBUG Saving Thermal image to:{}".format(filename))
-
-            # convert to jpeg and save
+            # convert to jpeg and enhance
             img_thermal = img_thermal.convert("RGB")
-
             enhancer = ImageEnhance.Sharpness(img_thermal)
             img_thermal = enhancer.enhance(3)
 
-            img_thermal.save(filename, "jpeg", quality=100)
+            if bytesIO:
+                bytes = io.BytesIO()
+                img_thermal.save(bytes, "jpeg", quality=100)
+                return bytes
+            else:
+                filename_array = thermal_output_filename.split(".")
+                filename = filename_array[0] + "_" + str(palette.name) + "." + filename_array[1]
+                if self.is_debug:
+                    print("DEBUG Saving Thermal image to:{}".format(filename))
+
+                img_thermal.save(filename, "jpeg", quality=100)
+                return filename
 
     def export_thermal_to_csv(self, csv_filename):
         """

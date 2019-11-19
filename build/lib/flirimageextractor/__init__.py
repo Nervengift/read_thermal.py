@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# version 1.0.3
+# version 1.2.2
 
 from __future__ import print_function
 
@@ -68,7 +68,7 @@ class FlirImageExtractor:
         :param flir_img_filename: Input path for the flir image
         :return: Bool
         """
-        metadata = get_metadata(flir_img_filename)
+        metadata = self.get_metadata(flir_img_filename)
         return 'RawThermalImageType' in metadata
 
     def process_image(self, flir_img_filename):
@@ -91,7 +91,6 @@ class FlirImageExtractor:
             self.use_thumbnail = True
             self.fix_endian = False
 
-        # self.rgb_image_np = self.extract_embedded_image()
         self.thermal_image_np = self.extract_thermal_image()
 
     def get_image_type(self):
@@ -250,34 +249,44 @@ class FlirImageExtractor:
         plt.imshow(rgb_np)
         plt.show()
 
-    def save_images(self):
+    def save_images(self, min=None, max=None, bytesIO=False):
         """
         Save the extracted images
         :return:
         """
+        if (min is not None and max is None) or (max is not None and min is None):
+            raise Exception('Specify both a maximum and minimum temperature value, or use the default by specifying neither')
+        if max is not None and min is not None and max <= min:
+            raise Exception("The max value must be greater than min")
         thermal_np = self.extract_thermal_image()
 
-        thermal_normalized = (((thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np))))
+        if min is not None and max is not None:
+            thermal_normalized = ((thermal_np - min) / (max - min))
+        else:
+            thermal_normalized = ((thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np)))
 
         thermal_output_filename_array = self.flir_img_filename.split(".")
         thermal_output_filename = thermal_output_filename_array[0] + "_thermal." + thermal_output_filename_array[1]
 
         for palette in self.palettes:
             img_thermal = Image.fromarray(palette(thermal_normalized, bytes=True))
-
-            filename_array = thermal_output_filename.split(".")
-            filename = filename_array[0] + "_" + str(palette.name) + "." + filename_array[1]
-
-            if self.is_debug:
-                print("DEBUG Saving Thermal image to:{}".format(filename))
-
-            # convert to jpeg and save
+            # convert to jpeg and enhance
             img_thermal = img_thermal.convert("RGB")
-
             enhancer = ImageEnhance.Sharpness(img_thermal)
             img_thermal = enhancer.enhance(3)
 
-            img_thermal.save(filename, "jpeg", quality=100)
+            if bytesIO:
+                bytes = io.BytesIO()
+                img_thermal.save(bytes, "jpeg", quality=100)
+                return bytes
+            else:
+                filename_array = thermal_output_filename.split(".")
+                filename = filename_array[0] + "_" + str(palette.name) + "." + filename_array[1]
+                if self.is_debug:
+                    print("DEBUG Saving Thermal image to:{}".format(filename))
+
+                img_thermal.save(filename, "jpeg", quality=100)
+                return filename
 
     def export_thermal_to_csv(self, csv_filename):
         """
@@ -301,29 +310,6 @@ class FlirImageExtractor:
 
             writer.writerows(pixel_values)
 
+    @staticmethod
     def reject_outliers(data, m=2):
         return data[abs(data - np.mean(data)) < m * np.std(data)]
-
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Extract and visualize Flir Image data')
-    parser.add_argument('-i', '--input', type=str, help='Input image. Ex. img.jpg', required=True)
-    parser.add_argument('-p', '--plot', help='Generate a plot using matplotlib', required=False, action='store_true')
-    parser.add_argument('-exif', '--exiftool', type=str, help='Custom path to exiftool', required=False,
-                        default='exiftool')
-    parser.add_argument('-csv', '--extractcsv', help='Export the thermal data per pixel encoded as csv file',
-                        required=False)
-    parser.add_argument('-d', '--debug', help='Set the debug flag', required=False,
-                        action='store_true')
-    args = parser.parse_args()
-
-    fie = FlirImageExtractor(exiftool_path=args.exiftool, is_debug=args.debug)
-    fie.process_image(args.input)
-
-    if args.plot:
-        fie.plot()
-
-    if args.extractcsv:
-        fie.export_thermal_to_csv(args.extractcsv)
-
-    fie.save_images()
