@@ -283,7 +283,7 @@ class FlirImageExtractor:
             if bytesIO:
                 bytes = io.BytesIO()
                 img_thermal.save(bytes, "jpeg", quality=100)
-                return_array += bytes
+                return_array.append(bytes)
             else:
                 filename_array = thermal_output_filename.split(".")
                 filename = filename_array[0] + "_" + str(palette.name) + "." + filename_array[1]
@@ -291,7 +291,7 @@ class FlirImageExtractor:
                     print("DEBUG Saving Thermal image to:{}".format(filename))
 
                 img_thermal.save(filename, "jpeg", quality=100)
-                return_array += filename
+                return_array.append(filename)
 
             return return_array
 
