@@ -3,7 +3,6 @@
 # version 1.2.2
 
 from __future__ import print_function
-
 import argparse
 import io
 import json
@@ -44,54 +43,14 @@ class FlirImageExtractor:
 
     pass
 
-    # def get_metadata(self, flir_img_file, bytesIO=False):
-    #     """
-    #     Given a valid image path, get relevant metadata out of the image using exiftool
-    #     :param flir_img_file: Input path for the flir image
-    #     :return: dictionary of metadata
-    #     """
-    #     if bytesIO:
-    #         self.flir_img_bytes = flir_img_file
-    #     else:
-    #         if self.is_debug:
-    #             print("INFO Flir image filepath:{}".format(flir_img_file))
-    #
-    #         if not os.path.isfile(flir_img_file):
-    #             raise ValueError("Input file does not exist or this user don't have permission on this file")
-    #
-    #         self.flir_img_filename = flir_img_file
-    #
-    #     if self.flir_img_filename:
-    #         meta_json = subprocess.check_output([self.exiftool_path, self.flir_img_filename, '-j'])
-    #     else:
-    #         args = ['exiftool', '-j', '-']
-    #         p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-    #         meta_json, err = p.communicate(input=self.flir_img_bytes.read())
-    #
-    #     meta = json.loads(meta_json.decode())[0]
-    #
-    #     return meta
-    #
-    # def check_for_thermal_image(self, flir_img_filename):
-    #     """
-    #     Given a valid image path, return a boolean of whether the image contains thermal data
-    #     :param flir_img_filename: Input path for the flir image
-    #     :return: Bool
-    #     """
-    #     metadata = self.get_metadata(flir_img_filename)
-    #     return 'RawThermalImageType' in metadata
-
-    def process_image(self, flir_img_file, RGB=False, bytesIO=False):
+    def get_metadata(self, flir_img_file, bytesIO=False):
         """
-        Given a valid image path, process the file: extract real thermal values
-        and a thumbnail for comparison (generally thumbnail is on the visible spectre)
+        Given a valid image path, get relevant metadata out of the image using exiftool
         :param flir_img_file: Input path for the flir image
-        :param RGB: Boolean for whether to extract the embedded RGB image
-        :return:
+        :return: dictionary of metadata
         """
         if bytesIO:
             self.flir_img_bytes = flir_img_file
-            # print(self.flir_img_bytes.read())
         else:
             if self.is_debug:
                 print("INFO Flir image filepath:{}".format(flir_img_file))
@@ -101,11 +60,55 @@ class FlirImageExtractor:
 
             self.flir_img_filename = flir_img_file
 
+        if self.flir_img_filename:
+            meta_json = subprocess.check_output([self.exiftool_path, self.flir_img_filename, '-j'])
+        else:
+            args = ['exiftool', '-j', '-']
+            p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+            meta_json, err = p.communicate(input=self.flir_img_bytes.read())
+
+        meta = json.loads(meta_json.decode())[0]
+
+        return meta
+
+    def check_for_thermal_image(self, flir_img_filename):
+        """
+        Given a valid image path, return a boolean of whether the image contains thermal data
+        :param flir_img_filename: Input path for the flir image
+        :return: Bool
+        """
+        metadata = self.get_metadata(flir_img_filename)
+        return 'RawThermalImageType' in metadata
+
+    def process_image(self, flir_img_file, RGB=False, bytesIO=False):
+        """
+        Given a valid image path, process the file: extract real thermal values
+        and a thumbnail for comparison (generally thumbnail is on the visible spectre)
+        :param flir_img_file: Input path for the flir image
+        :param RGB: Boolean for whether to extract the embedded RGB image
+        :return:
+        """
+        # if bytesIO then save the image file to the class variable
+        if bytesIO:
+            self.flir_img_bytes = flir_img_file
+
+        else:
+            # if its a file path then check that its a file path and save to the class variable
+            if self.is_debug:
+                print("INFO Flir image filepath:{}".format(flir_img_file))
+
+            if not os.path.isfile(flir_img_file):
+                raise ValueError("Input file does not exist or this user don't have permission on this file")
+
+            self.flir_img_filename = flir_img_file
+
+        # if its a TIFF different settings are required
         if self.get_image_type().upper().strip() == "TIFF":
             # valid for tiff images from Zenmuse XTR
             self.use_thumbnail = True
             self.fix_endian = False
 
+        # extract the thermal image and set it to the class variable
         self.thermal_image_np = self.extract_thermal_image()
 
         if RGB:
@@ -125,9 +128,7 @@ class FlirImageExtractor:
             p = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
             meta_json, err = p.communicate(input=self.flir_img_bytes.read())
 
-        meta = json.loads(meta_json.decode())[0]
-
-        return meta['RawThermalImageType']
+        return json.loads(meta_json.decode())[0]['RawThermalImageType']
 
     def get_rgb_np(self):
         """
@@ -215,7 +216,7 @@ class FlirImageExtractor:
             # thermal_np = np.vectorize(lambda x: (x >> 8) + ((x & 0x00ff) << 8))(thermal_np)
             thermal_np = np.right_shift(thermal_np, 8) + np.left_shit(np.bitwise_and(thermal_np, 0x00ff), 8)
 
-        thermal_np = FlirImageExtractor.raw2temp(self, thermal_np, E=meta['Emissivity'], OD=subject_distance,
+        thermal_np = FlirImageExtractor.raw2temp(thermal_np, E=meta['Emissivity'], OD=subject_distance,
                                                                           RTemp=FlirImageExtractor.extract_float(
                                                                               meta['ReflectedApparentTemperature']),
                                                                           ATemp=FlirImageExtractor.extract_float(
@@ -231,8 +232,8 @@ class FlirImageExtractor:
 
         return thermal_np
 
-
-    def raw2temp(self, raw, E=1, OD=1, RTemp=20, ATemp=20, IRWTemp=20, IRT=1, RH=50, PR1=21106.77, PB=1501, PF=1, PO=-7340,
+    @staticmethod
+    def raw2temp(raw, E=1, OD=1, RTemp=20, ATemp=20, IRWTemp=20, IRT=1, RH=50, PR1=21106.77, PB=1501, PF=1, PO=-7340,
                  PR2=0.012545258):
         """
         convert raw values from the flir sensor to temperatures in C
