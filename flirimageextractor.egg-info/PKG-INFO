@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: flirimageextractor
-Version: 1.2.5.1
+Version: 1.2.7.1
 Summary: A package to get thermal information out of FLIR radiometric JPGs
 Home-page: https://github.com/nationaldronesau/FlirImageExtractor
 Author: Aidan Kinzett

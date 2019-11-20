@@ -101,7 +101,6 @@ class FlirImageExtractor:
 
             self.flir_img_filename = flir_img_file
 
-
         if self.get_image_type().upper().strip() == "TIFF":
             # valid for tiff images from Zenmuse XTR
             self.use_thumbnail = True
@@ -173,7 +172,6 @@ class FlirImageExtractor:
 
         # read image metadata needed for conversion of the raw sensor values
         # E=1,SD=1,RTemp=20,ATemp=RTemp,IRWTemp=RTemp,IRT=1,RH=50,PR1=21106.77,PB=1501,PF=1,PO=-7340,PR2=0.012545258
-
         if self.flir_img_filename:
             meta_json = subprocess.check_output(
                 [self.exiftool_path, self.flir_img_filename, '-Emissivity', '-SubjectDistance',
@@ -216,7 +214,7 @@ class FlirImageExtractor:
             # fix endianness, the bytes in the embedded png are in the wrong order
             thermal_np = np.vectorize(lambda x: (x >> 8) + ((x & 0x00ff) << 8))(thermal_np)
 
-        raw2tempfunc = np.vectorize(lambda x: FlirImageExtractor.raw2temp(x, E=meta['Emissivity'], OD=subject_distance,
+        thermal_np = FlirImageExtractor.raw2temp(self, thermal_np, E=meta['Emissivity'], OD=subject_distance,
                                                                           RTemp=FlirImageExtractor.extract_float(
                                                                               meta['ReflectedApparentTemperature']),
                                                                           ATemp=FlirImageExtractor.extract_float(
@@ -228,12 +226,12 @@ class FlirImageExtractor:
                                                                               meta['RelativeHumidity']),
                                                                           PR1=meta['PlanckR1'], PB=meta['PlanckB'],
                                                                           PF=meta['PlanckF'],
-                                                                          PO=meta['PlanckO'], PR2=meta['PlanckR2']))
-        thermal_np = raw2tempfunc(thermal_np)
+                                                                          PO=meta['PlanckO'], PR2=meta['PlanckR2'])
+
         return thermal_np
 
-    @staticmethod
-    def raw2temp(raw, E=1, OD=1, RTemp=20, ATemp=20, IRWTemp=20, IRT=1, RH=50, PR1=21106.77, PB=1501, PF=1, PO=-7340,
+
+    def raw2temp(self, raw, E=1, OD=1, RTemp=20, ATemp=20, IRWTemp=20, IRT=1, RH=50, PR1=21106.77, PB=1501, PF=1, PO=-7340,
                  PR2=0.012545258):
         """
         convert raw values from the flir sensor to temperatures in C
@@ -271,11 +269,12 @@ class FlirImageExtractor:
         raw_refl2_attn = refl_wind / E / tau1 / IRT * raw_refl2
         raw_atm2 = PR1 / (PR2 * (exp(PB / (ATemp + 273.15)) - PF)) - PO
         raw_atm2_attn = (1 - tau2) / E / tau1 / IRT / tau2 * raw_atm2
+
         raw_obj = (raw / E / tau1 / IRT / tau2 - raw_atm1_attn -
                    raw_atm2_attn - raw_wind_attn - raw_refl1_attn - raw_refl2_attn)
 
         # temperature from radiance
-        temp_celcius = PB / log(PR1 / (PR2 * (raw_obj + PO)) + PF) - 273.15
+        temp_celcius = PB / np.log(PR1 / (PR2 * (raw_obj + PO)) + PF) - 273.15
         return temp_celcius
 
     @staticmethod
@@ -310,12 +309,15 @@ class FlirImageExtractor:
             raise Exception('Specify both a maximum and minimum temperature value, or use the default by specifying neither')
         if max is not None and min is not None and max <= min:
             raise Exception("The max value must be greater than min")
-        thermal_np = self.extract_thermal_image()
+
+        if self.thermal_image_np is None:
+            self.thermal_image_np = self.extract_thermal_image()
+
 
         if min is not None and max is not None:
-            thermal_normalized = ((thermal_np - min) / (max - min))
+            thermal_normalized = ((self.thermal_image_np - min) / (max - min))
         else:
-            thermal_normalized = ((thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np)))
+            thermal_normalized = ((self.thermal_image_np - np.amin(self.thermal_image_np)) / (np.amax(self.thermal_image_np) - np.amin(self.thermal_image_np)))
 
         if not bytesIO:
             thermal_output_filename_array = self.flir_img_filename.split(".")
@@ -342,7 +344,7 @@ class FlirImageExtractor:
                 img_thermal.save(filename, "jpeg", quality=100)
                 return_array.append(filename)
 
-            return return_array
+        return return_array
 
     def export_thermal_to_csv(self, csv_filename):
         """
