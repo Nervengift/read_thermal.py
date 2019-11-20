@@ -212,7 +212,8 @@ class FlirImageExtractor:
 
         if self.fix_endian:
             # fix endianness, the bytes in the embedded png are in the wrong order
-            thermal_np = np.vectorize(lambda x: (x >> 8) + ((x & 0x00ff) << 8))(thermal_np)
+            # thermal_np = np.vectorize(lambda x: (x >> 8) + ((x & 0x00ff) << 8))(thermal_np)
+            thermal_np = np.right_shift(thermal_np, 8) + np.left_shit(np.bitwise_and(thermal_np, 0x00ff), 8)
 
         thermal_np = FlirImageExtractor.raw2temp(self, thermal_np, E=meta['Emissivity'], OD=subject_distance,
                                                                           RTemp=FlirImageExtractor.extract_float(
