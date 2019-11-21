@@ -288,18 +288,18 @@ class FlirImageExtractor:
         digits = re.findall(r"[-+]?\d*\.\d+|\d+", dirtystr)
         return float(digits[0])
 
-    def plot(self):
+    def plot(self, palette=cm.gnuplot2):
         """
         Plot the rgb + thermal image (easy to see the pixel values)
         :return:
         """
-        rgb_np = self.get_rgb_np()
-        thermal_np = self.get_thermal_np()
-
         plt.subplot(1, 2, 1)
-        plt.imshow(thermal_np, cmap='hot')
-        plt.subplot(1, 2, 2)
-        plt.imshow(rgb_np)
+        plt.imshow(self.thermal_image_np, cmap=palette)
+
+        if self.rgb_image_np:
+            plt.subplot(1, 2, 2)
+            plt.imshow(self.rgb_image_np)
+
         plt.show()
 
     def save_images(self, min=None, max=None, bytesIO=False):
