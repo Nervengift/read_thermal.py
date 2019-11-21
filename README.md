@@ -9,6 +9,8 @@ The resulting image is saved as a jpg image but both the original visual image a
 
 This small Python tool/library allows to extract the original photo and thermal sensor values converted to temperatures.
 
+Find the docs [here](https://flirimageextractor.readthedocs.io/).
+
 ## Requirements and Install
 
 This tool relies on `exiftool`. It should be available in most Linux distributions (e.g. as `perl-image-exiftool` in Arch Linux or `libimage-exiftool-perl` in Debian and Ubuntu). Links for downloading the Mac version and more information is available on the [ExifTool site](https://sno.phy.queensu.ca/~phil/exiftool/index.html).
@@ -53,7 +55,7 @@ The functions `get_rgb_np` and `get_thermal_np` yield numpy arrays and can be ca
 
 The function `save_image` saves the thermal image(s) in the same folder as the original image. By default it will output three images using the `bwr`, `gnuplot`, and `gist_ncar` colormaps from matplotlib. You can define the pallete(s) that you would rather use when creating the class (see example). For a list of available matplotlib colormaps click [here](https://matplotlib.org/tutorials/colors/colormaps.html). `save_images(self, min=5, max=100)` can be used to set global minimum and maximum temperature values so that multiple images can be process with the same scale.
 
-## Supported/Tested cameras:
+## Supported/Tested Cameras
 
 - Flir One (thermal + RGB)
 - Xenmuse XTR (thermal + thumbnail, set the subject distance to 1 meter)
