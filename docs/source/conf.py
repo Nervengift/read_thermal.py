@@ -22,7 +22,7 @@ copyright = '2019, National Drones'
 author = 'National Drones'
 
 # The full version, including alpha/beta/rc tags
-release = '1.2.11'
+release = '1.3.0'
 master_doc = 'index'
 
 # -- General configuration ---------------------------------------------------
