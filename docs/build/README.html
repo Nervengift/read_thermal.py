@@ -1,0 +1,207 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Flir Image Extractor &#8212; FlirImageExtractor 1.2.11 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="flirimageextractor" href="flirimageextractor.html" />
+    <link rel="prev" title="FlirImageExtractor Documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="index.html" title="Previous document">FlirImageExtractor Documentation</a>
+        </li>
+        <li>
+          <a href="flirimageextractor.html" title="Next document">flirimageextractor</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="flir-image-extractor">
+<h1>Flir Image Extractor<a class="headerlink" href="#flir-image-extractor" title="Permalink to this headline">¶</a></h1>
+<p>Feel free to submit any pull requests or issues, this is in active development. Also let me know if you are successful in using this on cameras not listed below.</p>
+<p>FLIR® thermal cameras like the FLIR ONE® include both a thermal and a visual light camera.
+The latter is used to enhance the thermal image using an edge detector.</p>
+<p>The resulting image is saved as a jpg image but both the original visual image and the raw thermal sensor data are embedded in the jpg metadata.</p>
+<p>This small Python tool/library allows to extract the original photo and thermal sensor values converted to temperatures.</p>
+<div class="section" id="requirements-and-install">
+<h2>Requirements and Install<a class="headerlink" href="#requirements-and-install" title="Permalink to this headline">¶</a></h2>
+<p>This tool relies on <code class="docutils literal notranslate"><span class="pre">exiftool</span></code>. It should be available in most Linux distributions (e.g. as <code class="docutils literal notranslate"><span class="pre">perl-image-exiftool</span></code> in Arch Linux or <code class="docutils literal notranslate"><span class="pre">libimage-exiftool-perl</span></code> in Debian and Ubuntu). Links for downloading the Mac version and more information is available on the <a class="reference external" href="https://sno.phy.queensu.ca/~phil/exiftool/index.html">ExifTool site</a>.</p>
+<p>It also requires other python packages, <em>matplotlib</em>, <em>numpy</em> and <em>pillow</em>, which are installed when installed through pip.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo apt update
+sudo apt install exiftool
+pip install flirimageextractor
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">flirimageextractor</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">cm</span>
+
+<span class="n">flir</span> <span class="o">=</span> <span class="n">flirimageextractor</span><span class="o">.</span><span class="n">FlirImageExtractor</span><span class="p">(</span><span class="n">palettes</span><span class="o">=</span><span class="p">[</span><span class="n">cm</span><span class="o">.</span><span class="n">jet</span><span class="p">,</span> <span class="n">cm</span><span class="o">.</span><span class="n">bwr</span><span class="p">,</span> <span class="n">cm</span><span class="o">.</span><span class="n">gist_ncar</span><span class="p">])</span>
+<span class="n">flir</span><span class="o">.</span><span class="n">process_image</span><span class="p">(</span><span class="s1">&#39;examples/ax8.jpg&#39;</span><span class="p">)</span>
+<span class="n">flir</span><span class="o">.</span><span class="n">save_images</span><span class="p">()</span>
+<span class="n">flir</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This script will show an interactive plot of the thermal image using matplotlib and save three image files <em>ax8_thermal_jet.jpg</em>, <em>ax8_thermal_bwr.jpg</em>, and <em>ax8_thermal_gist_ncar.jpg</em>.</p>
+</div>
+<div class="section" id="resulting-plot-and-saved-images">
+<h3>Resulting Plot and Saved Images<a class="headerlink" href="#resulting-plot-and-saved-images" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="plot">
+<h4>Plot<a class="headerlink" href="#plot" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="https://user-images.githubusercontent.com/8899750/57902766-2dd3ab00-78ae-11e9-9aba-bf033e481a34.png"><img alt="Python 2019-05-17 at 14 14 57" src="https://user-images.githubusercontent.com/8899750/57902766-2dd3ab00-78ae-11e9-9aba-bf033e481a34.png" /></a>
+</div>
+<div class="section" id="saved-images">
+<h4>Saved Images<a class="headerlink" href="#saved-images" title="Permalink to this headline">¶</a></h4>
+<a class="reference external image-reference" href="https://user-images.githubusercontent.com/8899750/57902729-0977ce80-78ae-11e9-9e7f-39800ffb7458.jpg"><img alt="ax8_thermal_jet" src="https://user-images.githubusercontent.com/8899750/57902729-0977ce80-78ae-11e9-9e7f-39800ffb7458.jpg" /></a>
+<a class="reference external image-reference" href="https://user-images.githubusercontent.com/8899750/57902822-7ab78180-78ae-11e9-9aac-f4b318b086b4.jpg"><img alt="ax8_thermal_bwr" src="https://user-images.githubusercontent.com/8899750/57902822-7ab78180-78ae-11e9-9aac-f4b318b086b4.jpg" /></a>
+<a class="reference external image-reference" href="https://user-images.githubusercontent.com/8899750/57902823-7be8ae80-78ae-11e9-8d50-20b1f1cc7818.jpg"><img alt="ax8_thermal_gist_ncar" src="https://user-images.githubusercontent.com/8899750/57902823-7be8ae80-78ae-11e9-8d50-20b1f1cc7818.jpg" /></a>
+<p>The original temperature array is available using either the <code class="docutils literal notranslate"><span class="pre">get_thermal_np</span></code> or <code class="docutils literal notranslate"><span class="pre">export_thermal_to_csv</span></code> functions.</p>
+<p>The function <code class="docutils literal notranslate"><span class="pre">check_for_thermal_image</span></code> will check the metadata of the image to see if it contains thermal information.</p>
+<p>The functions <code class="docutils literal notranslate"><span class="pre">get_rgb_np</span></code> and <code class="docutils literal notranslate"><span class="pre">get_thermal_np</span></code> yield numpy arrays and can be called from your own script after importing this library.</p>
+<p>The function <code class="docutils literal notranslate"><span class="pre">save_image</span></code> saves the thermal image(s) in the same folder as the original image. By default it will output three images using the <code class="docutils literal notranslate"><span class="pre">bwr</span></code>, <code class="docutils literal notranslate"><span class="pre">gnuplot</span></code>, and <code class="docutils literal notranslate"><span class="pre">gist_ncar</span></code> colormaps from matplotlib. You can define the pallete(s) that you would rather use when creating the class (see example). For a list of available matplotlib colormaps click <a class="reference external" href="https://matplotlib.org/tutorials/colors/colormaps.html">here</a>. <code class="docutils literal notranslate"><span class="pre">save_images(self,</span> <span class="pre">min=5,</span> <span class="pre">max=100)</span></code> can be used to set global minimum and maximum temperature values so that multiple images can be process with the same scale.</p>
+</div>
+</div>
+</div>
+<div class="section" id="supported-tested-cameras">
+<h2>Supported/Tested cameras:<a class="headerlink" href="#supported-tested-cameras" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Flir One (thermal + RGB)</p></li>
+<li><p>Xenmuse XTR (thermal + thumbnail, set the subject distance to 1 meter)</p></li>
+<li><p>AX8 (thermal + RGB)</p></li>
+</ul>
+<p>Other cameras might need some small tweaks (the embedded raw data can be in multiple image formats). Let me know if you succesfully use other cameras so they can be added to this list.</p>
+</div>
+<div class="section" id="credits">
+<h2>Credits<a class="headerlink" href="#credits" title="Permalink to this headline">¶</a></h2>
+<p>Raw value to temperature conversion is ported from this R package: <a class="reference external" href="https://github.com/gtatters/Thermimage/blob/master/R/raw2temp.R">https://github.com/gtatters/Thermimage/blob/master/R/raw2temp.R</a>
+Original Python code from: <a class="reference external" href="https://github.com/Nervengift/read_thermal.py">https://github.com/Nervengift/read_thermal.py</a></p>
+</div>
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="index.html" title="Previous document">FlirImageExtractor Documentation</a>
+        </li>
+        <li>
+          <a href="flirimageextractor.html" title="Next document">flirimageextractor</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">FlirImageExtractor</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Flir Image Extractor</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#requirements-and-install">Requirements and Install</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-tested-cameras">Supported/Tested cameras:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#credits">Credits</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="flirimageextractor.html">flirimageextractor</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">FlirImageExtractor Documentation</a></li>
+      <li>Next: <a href="flirimageextractor.html" title="next chapter">flirimageextractor</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, National Drones.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

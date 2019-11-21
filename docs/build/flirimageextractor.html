@@ -1,0 +1,229 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>API Documentation &#8212; FlirImageExtractor 1.2.11 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Flir Image Extractor" href="README.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="README.html" title="Previous document">Flir Image Extractor</a>
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="api-documentation">
+<h1>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="flirimageextractor.FlirImageExtractor">
+<em class="property">class </em><code class="sig-prename descclassname">flirimageextractor.</code><code class="sig-name descname">FlirImageExtractor</code><span class="sig-paren">(</span><em class="sig-param">exiftool_path='exiftool', is_debug=False, palettes=[&lt;matplotlib.colors.LinearSegmentedColormap object&gt;, &lt;matplotlib.colors.LinearSegmentedColormap object&gt;, &lt;matplotlib.colors.LinearSegmentedColormap object&gt;]</em><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.check_for_thermal_image">
+<code class="sig-name descname">check_for_thermal_image</code><span class="sig-paren">(</span><em class="sig-param">flir_img_filename</em><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.check_for_thermal_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a valid image path, return a boolean of whether the image contains thermal data
+:param flir_img_filename: Input path for the flir image
+:return: Bool</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.extract_embedded_image">
+<code class="sig-name descname">extract_embedded_image</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.extract_embedded_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>extracts the visual image as 2D numpy array of RGB values</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.extract_float">
+<em class="property">static </em><code class="sig-name descname">extract_float</code><span class="sig-paren">(</span><em class="sig-param">dirtystr</em><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.extract_float" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract the float value of a string, helpful for parsing the exiftool data
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.extract_thermal_image">
+<code class="sig-name descname">extract_thermal_image</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.extract_thermal_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>extracts the thermal image as 2D numpy array with temperatures in oC</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.get_image_type">
+<code class="sig-name descname">get_image_type</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.get_image_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the embedded thermal image type, generally can be TIFF or PNG
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.get_metadata">
+<code class="sig-name descname">get_metadata</code><span class="sig-paren">(</span><em class="sig-param">flir_img_file</em><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.get_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a valid file path or file-like object get relevant metadata out of the image using exiftool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>flir_img_file</strong> – </p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.get_rgb_np">
+<code class="sig-name descname">get_rgb_np</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.get_rgb_np" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the last extracted rgb image
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.get_thermal_np">
+<code class="sig-name descname">get_thermal_np</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.get_thermal_np" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the last extracted thermal image
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.plot">
+<code class="sig-name descname">plot</code><span class="sig-paren">(</span><em class="sig-param">palette=&lt;matplotlib.colors.LinearSegmentedColormap object&gt;</em><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot the rgb and thermal image (easy to see the pixel values), include a matplotlib colormap to change the colors
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.process_image">
+<code class="sig-name descname">process_image</code><span class="sig-paren">(</span><em class="sig-param">flir_img_file</em>, <em class="sig-param">RGB=False</em><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.process_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Given a valid image path, process the file: extract real thermal values
+and a thumbnail for comparison (generally thumbnail is on the visible spectre)
+:param flir_img_file: Input path for the flir image
+:param RGB: Boolean for whether to extract the embedded RGB image
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.raw2temp">
+<em class="property">static </em><code class="sig-name descname">raw2temp</code><span class="sig-paren">(</span><em class="sig-param">raw</em>, <em class="sig-param">E=1</em>, <em class="sig-param">OD=1</em>, <em class="sig-param">RTemp=20</em>, <em class="sig-param">ATemp=20</em>, <em class="sig-param">IRWTemp=20</em>, <em class="sig-param">IRT=1</em>, <em class="sig-param">RH=50</em>, <em class="sig-param">PR1=21106.77</em>, <em class="sig-param">PB=1501</em>, <em class="sig-param">PF=1</em>, <em class="sig-param">PO=-7340</em>, <em class="sig-param">PR2=0.012545258</em><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.raw2temp" title="Permalink to this definition">¶</a></dt>
+<dd><p>convert raw values from the flir sensor to temperatures in C
+# this calculation has been ported to python from
+# <a class="reference external" href="https://github.com/gtatters/Thermimage/blob/master/R/raw2temp.R">https://github.com/gtatters/Thermimage/blob/master/R/raw2temp.R</a>
+# a detailed explanation of what is going on here can be found there</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="flirimageextractor.FlirImageExtractor.save_images">
+<code class="sig-name descname">save_images</code><span class="sig-paren">(</span><em class="sig-param">min=None</em>, <em class="sig-param">max=None</em>, <em class="sig-param">bytesIO=False</em><span class="sig-paren">)</span><a class="headerlink" href="#flirimageextractor.FlirImageExtractor.save_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the extracted images
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="README.html" title="Previous document">Flir Image Extractor</a>
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">FlirImageExtractor</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Flir Image Extractor</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Documentation</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="README.html" title="previous chapter">Flir Image Extractor</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, National Drones.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.2.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/flirimageextractor.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
