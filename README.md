@@ -36,7 +36,7 @@ flir.process_image('examples/ax8.jpg')
 flir.save_images()
 flir.plot()
 ```
-This script will show an interactive plot of the thermal image using matplotlib and save three image files *ax8_thermal_jet.jpg*, *ax8_thermal_bwr.jpg*, and *ax8_thermal_gist_ncar.jpg*. 
+This script will show an interactive plot of the thermal image using matplotlib and save three image files *ax8_thermal_jet.jpg*, *ax8_thermal_bwr.jpg*, and *ax8_thermal_gist_ncar.jpg*.
 
 #### Resulting Plot and Saved Images
 ##### Plot
@@ -62,6 +62,9 @@ The function `save_image` saves the thermal image(s) in the same folder as the o
 - AX8 (thermal + RGB)
 
 Other cameras might need some small tweaks (the embedded raw data can be in multiple image formats). Let me know if you succesfully use other cameras so they can be added to this list.
+
+## Development
+Install the required packages using [Pipenv](https://pipenv.kennethreitz.org/en/latest/). Then run `pre-commit install` to install the pre-commit hooks.
 
 ## Credits
 
