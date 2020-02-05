@@ -5771,7 +5771,7 @@ jQuery.fn.extend( {
 
 var
 
-	/* eslint-disable max-len */
+	/* eslint-disable maxTemp-len */
 
 	// See https://github.com/eslint/eslint/issues/3229
 	rxhtmlTag = /<(?!area|br|col|embed|hr|img|input|link|meta|param)(([a-z][^\/\0>\x20\t\r\n\f]*)[^>]*)\/>/gi,

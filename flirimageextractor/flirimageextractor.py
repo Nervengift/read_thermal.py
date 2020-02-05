@@ -9,6 +9,7 @@ from math import sqrt, exp, log
 from matplotlib import pyplot as plt, cm
 from io import StringIO, BytesIO
 import numpy as np
+from loguru import logger
 
 
 class FlirImageExtractor:
@@ -17,12 +18,9 @@ class FlirImageExtractor:
 
     """
 
-    def __init__(
-        self,
-        exiftool_path="exiftool",
-        is_debug=False,
-        palettes=[cm.bwr, cm.gnuplot2, cm.gist_ncar],
-    ):
+    def __init__(self, exiftool_path="exiftool", is_debug=False, palettes=None):
+        if palettes is None:
+            palettes = [cm.bwr, cm.gnuplot2, cm.gist_ncar]
         self.exiftool_path = exiftool_path
         self.is_debug = is_debug
         self.flir_img_filename = None
@@ -49,12 +47,12 @@ class FlirImageExtractor:
                     "Input file does not exist or this user don't have permission on this file"
                 )
             if self.is_debug:
-                print("INFO Flir image filepath:{}".format(file))
+                logger.debug("Flir image filepath:{}".format(file))
 
             self.flir_img_filename = file
         else:
             if self.is_debug:
-                print("Loaded file from object")
+                logger.debug("Loaded file from object")
             self.flir_img_bytes = file
 
     def get_metadata(self, flir_img_file):
@@ -350,15 +348,15 @@ class FlirImageExtractor:
         return temp_celcius
 
     @staticmethod
-    def extract_float(dirtystr):
+    def extract_float(dirty_str):
         """
         Extract the float value of a string, helpful for parsing the exiftool data.
 
-        :param dirtystr: The string to parse the float from
+        :param dirty_str: The string to parse the float from
         :return: The float parsed from the string
         """
 
-        digits = re.findall(r"[-+]?\d*\.\d+|\d+", dirtystr)
+        digits = re.findall(r"[-+]?\d*\.\d+|\d+", dirty_str)
         return float(digits[0])
 
     def plot(self, palette=cm.gnuplot2):
@@ -377,27 +375,31 @@ class FlirImageExtractor:
 
         plt.show()
 
-    def save_images(self, min=None, max=None, bytesIO=False):
+    def save_images(self, minTemp=None, maxTemp=None, bytesIO=False):
         """
         Save the extracted images
 
-        :param min: (Optional) Manually set the minimum temperature for the colormap to use
-        :param max: (Optional) Manually set the maximum temperature for the colormap to use
+        :param minTemp: (Optional) Manually set the minimum temperature for the colormap to use
+        :param maxTemp: (Optional) Manually set the maximum temperature for the colormap to use
         :param bytesIO: (Optional) Return an array of BytesIO objects containing the images rather than saving to disk
         :return: Either a list of filenames where the images were save, or an array containing BytesIO objects of the output images
         """
-        if (min is not None and max is None) or (max is not None and min is None):
+        thermal_output_filename = ""
+
+        if (minTemp is not None and maxTemp is None) or (
+            maxTemp is not None and minTemp is None
+        ):
             raise Exception(
-                "Specify both a maximum and minimum temperature value, or use the default by specifying neither"
+                "Specify BOTH a maximum and minimum temperature value, or use the default by specifying neither"
             )
-        if max is not None and min is not None and max <= min:
-            raise Exception("The max value must be greater than min")
+        if maxTemp is not None and minTemp is not None and maxTemp <= minTemp:
+            raise Exception("The maxTemp value must be greater than minTemp")
 
         if self.thermal_image_np is None:
             self.thermal_image_np = self.extract_thermal_image()
 
-        if min is not None and max is not None:
-            thermal_normalized = (self.thermal_image_np - min) / (max - min)
+        if minTemp is not None and maxTemp is not None:
+            thermal_normalized = (self.thermal_image_np - minTemp) / (maxTemp - minTemp)
         else:
             thermal_normalized = (
                 self.thermal_image_np - np.amin(self.thermal_image_np)
@@ -433,7 +435,7 @@ class FlirImageExtractor:
                     + filename_array[1]
                 )
                 if self.is_debug:
-                    print("DEBUG Saving Thermal image to:{}".format(filename))
+                    logger.debug("Saving Thermal image to:{}".format(filename))
 
                 img_thermal.save(filename, "jpeg", quality=100)
                 return_array.append(filename)

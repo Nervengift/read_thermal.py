@@ -12,6 +12,7 @@ pillow = "*"
 m2r = "*"
 keyring = "*"
 pre-commit = "*"
+loguru = "*"
 
 [requires]
 python_version = "3.7"
