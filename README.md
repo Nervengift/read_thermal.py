@@ -64,6 +64,7 @@ The functions `get_rgb_np` and `get_thermal_np` yield numpy arrays and can be ca
 - Flir One (thermal + RGB)
 - Xenmuse XTR (thermal + thumbnail, set the subject distance to 1 meter)
 - AX8 (thermal + RGB)
+- T540 (thermal + RGB)
 
 Other cameras might need some small tweaks (the embedded raw data can be in multiple image formats)
 
