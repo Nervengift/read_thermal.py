@@ -3,6 +3,7 @@ import matplotlib
 import numpy as np
 
 matplotlib.use("TkAgg")
+from matplotlib import cm
 import flirimageextractor
 import io
 from os import listdir, mkdir
@@ -11,17 +12,16 @@ import os
 
 
 def multiple_images(FOLDER_PATH):
-    flir = flirimageextractor.FlirImageExtractor(is_debug=True)
+    flir = flirimageextractor.FlirImageExtractor(is_debug=True, palettes=[cm.magma])
     # get a list of all of the files in the folder and filter for just thermal images
     thermal_images = [
         join(FOLDER_PATH, f)
         for f in listdir(FOLDER_PATH)
         if isfile(join(FOLDER_PATH, f))
         and f.lower().endswith(".jpg")
+        and not f.startswith(".")
         and flir.check_for_thermal_image(join(FOLDER_PATH, f))
     ]
-
-    logger.debug(thermal_images)
 
     # create a folder to store everything in
     if not os.path.exists(join(FOLDER_PATH, "thermal-data")):
@@ -59,3 +59,5 @@ def multiple_images(FOLDER_PATH):
     for image in thermal_images:
         flir.process_image(image)
         flir.save_images(minTemp=dataset_min, maxTemp=dataset_max)
+
+multiple_images("/Volumes/Jaimyn USB/veolia/thermal")
