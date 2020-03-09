@@ -60,4 +60,5 @@ def multiple_images(FOLDER_PATH):
         flir.process_image(image)
         flir.save_images(minTemp=dataset_min, maxTemp=dataset_max)
 
+
 multiple_images("/Volumes/Jaimyn USB/veolia/thermal")
