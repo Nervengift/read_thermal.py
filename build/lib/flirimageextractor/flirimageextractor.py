@@ -9,15 +9,18 @@ from math import sqrt, exp, log
 from matplotlib import pyplot as plt, cm
 from io import StringIO, BytesIO
 import numpy as np
+from loguru import logger
 
 
 class FlirImageExtractor:
-    def __init__(
-        self,
-        exiftool_path="exiftool",
-        is_debug=False,
-        palettes=[cm.bwr, cm.gnuplot2, cm.gist_ncar],
-    ):
+    """
+    Instance of FlirImageExtractor
+
+    """
+
+    def __init__(self, exiftool_path="exiftool", is_debug=False, palettes=None):
+        if palettes is None:
+            palettes = [cm.bwr, cm.gnuplot2, cm.gist_ncar]
         self.exiftool_path = exiftool_path
         self.is_debug = is_debug
         self.flir_img_filename = None
@@ -32,26 +35,31 @@ class FlirImageExtractor:
         self.use_thumbnail = False
 
     def loadfile(self, file):
+        """
+        Loads an image file from a file path or a file-like object
+
+        :param file: File path or file like object to load the image from
+        :return:
+        """
         if not isinstance(file, io.IOBase):
             if not os.path.isfile(file):
-                if not os.path.isfile(file):
-                    raise ValueError(
-                        "Input file does not exist or this user don't have permission on this file"
-                    )
+                raise ValueError(
+                    "Input file does not exist or this user don't have permission on this file"
+                )
             if self.is_debug:
-                print("INFO Flir image filepath:{}".format(file))
+                logger.debug("Flir image filepath:{}".format(file))
 
             self.flir_img_filename = file
         else:
             if self.is_debug:
-                print("Loaded file from object")
+                logger.debug("Loaded file from object")
             self.flir_img_bytes = file
 
     def get_metadata(self, flir_img_file):
         """
-        Given a valid file path or file-like object get relevant metadata out of the image using exiftool
+        Given a valid file path or file-like object get relevant metadata out of the image using exiftool.
 
-        :param flir_img_file:
+        :param flir_img_file: File path or file like object to load the image from
         :return:
         """
         self.loadfile(flir_img_file)
@@ -69,8 +77,9 @@ class FlirImageExtractor:
 
     def check_for_thermal_image(self, flir_img_filename):
         """
-        Given a valid image path, return a boolean of whether the image contains thermal data
-        :param flir_img_filename: Input path for the flir image
+        Given a valid image path, return a boolean of whether the image contains thermal data.
+
+        :param flir_img_filename: File path or file like object to load the image from
         :return: Bool
         """
         metadata = self.get_metadata(flir_img_filename)
@@ -79,8 +88,9 @@ class FlirImageExtractor:
     def process_image(self, flir_img_file, RGB=False):
         """
         Given a valid image path, process the file: extract real thermal values
-        and a thumbnail for comparison (generally thumbnail is on the visible spectre)
-        :param flir_img_file: Input path for the flir image
+        and an RGB image if specified
+
+        :param flir_img_file: File path or file like object to load the image from
         :param RGB: Boolean for whether to extract the embedded RGB image
         :return:
         """
@@ -102,6 +112,7 @@ class FlirImageExtractor:
     def get_image_type(self):
         """
         Get the embedded thermal image type, generally can be TIFF or PNG
+
         :return:
         """
         if self.flir_img_filename:
@@ -124,6 +135,7 @@ class FlirImageExtractor:
     def get_rgb_np(self):
         """
         Return the last extracted rgb image
+
         :return:
         """
         return self.rgb_image_np
@@ -131,6 +143,7 @@ class FlirImageExtractor:
     def get_thermal_np(self):
         """
         Return the last extracted thermal image
+
         :return:
         """
         return self.thermal_image_np
@@ -138,6 +151,8 @@ class FlirImageExtractor:
     def extract_embedded_image(self):
         """
         extracts the visual image as 2D numpy array of RGB values
+
+        :return: Numpy Array of RGB values
         """
         image_tag = "-EmbeddedImage"
 
@@ -162,6 +177,8 @@ class FlirImageExtractor:
     def extract_thermal_image(self):
         """
         extracts the thermal image as 2D numpy array with temperatures in oC
+
+        :return: Numpy Array of thermal values
         """
 
         # read image metadata needed for conversion of the raw sensor values
@@ -331,17 +348,22 @@ class FlirImageExtractor:
         return temp_celcius
 
     @staticmethod
-    def extract_float(dirtystr):
+    def extract_float(dirty_str):
         """
-        Extract the float value of a string, helpful for parsing the exiftool data
-        :return:
+        Extract the float value of a string, helpful for parsing the exiftool data.
+
+        :param dirty_str: The string to parse the float from
+        :return: The float parsed from the string
         """
-        digits = re.findall(r"[-+]?\d*\.\d+|\d+", dirtystr)
+
+        digits = re.findall(r"[-+]?\d*\.\d+|\d+", dirty_str)
         return float(digits[0])
 
     def plot(self, palette=cm.gnuplot2):
         """
         Plot the rgb and thermal image (easy to see the pixel values), include a matplotlib colormap to change the colors
+
+        :param palette: A matplotlib colormap to display the thermal image in
         :return:
         """
         plt.subplot(1, 2, 1)
@@ -353,23 +375,31 @@ class FlirImageExtractor:
 
         plt.show()
 
-    def save_images(self, min=None, max=None, bytesIO=False):
+    def save_images(self, minTemp=None, maxTemp=None, bytesIO=False):
         """
         Save the extracted images
-        :return:
+
+        :param minTemp: (Optional) Manually set the minimum temperature for the colormap to use
+        :param maxTemp: (Optional) Manually set the maximum temperature for the colormap to use
+        :param bytesIO: (Optional) Return an array of BytesIO objects containing the images rather than saving to disk
+        :return: Either a list of filenames where the images were save, or an array containing BytesIO objects of the output images
         """
-        if (min is not None and max is None) or (max is not None and min is None):
+        thermal_output_filename = ""
+
+        if (minTemp is not None and maxTemp is None) or (
+            maxTemp is not None and minTemp is None
+        ):
             raise Exception(
-                "Specify both a maximum and minimum temperature value, or use the default by specifying neither"
+                "Specify BOTH a maximum and minimum temperature value, or use the default by specifying neither"
             )
-        if max is not None and min is not None and max <= min:
-            raise Exception("The max value must be greater than min")
+        if maxTemp is not None and minTemp is not None and maxTemp <= minTemp:
+            raise Exception("The maxTemp value must be greater than minTemp")
 
         if self.thermal_image_np is None:
             self.thermal_image_np = self.extract_thermal_image()
 
-        if min is not None and max is not None:
-            thermal_normalized = (self.thermal_image_np - min) / (max - min)
+        if minTemp is not None and maxTemp is not None:
+            thermal_normalized = (self.thermal_image_np - minTemp) / (maxTemp - minTemp)
         else:
             thermal_normalized = (
                 self.thermal_image_np - np.amin(self.thermal_image_np)
@@ -405,7 +435,7 @@ class FlirImageExtractor:
                     + filename_array[1]
                 )
                 if self.is_debug:
-                    print("DEBUG Saving Thermal image to:{}".format(filename))
+                    logger.debug("Saving Thermal image to:{}".format(filename))
 
                 img_thermal.save(filename, "jpeg", quality=100)
                 return_array.append(filename)

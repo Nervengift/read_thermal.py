@@ -6,8 +6,8 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="flirimageextractor",
     version="1.4.0",
-    author="Aidan Kinzett",
-    author_email="a.kinzett@nationaldrones.com",
+    author="National Drones",
+    author_email="hello@nationaldrones.com",
     description="A package to get thermal information out of FLIR radiometric JPGs",
     long_description=long_description,
     long_description_content_type="text/markdown",
