@@ -1,5 +1,7 @@
 # Flir Image Extractor
 
+The email address attached to this on PyPi may not be monitored, open issues on the [GitHub repo](https://github.com/nationaldronesau/FlirImageExtractor) to ensure a response
+
 Feel free to submit any pull requests or issues, this is in active development. Also let me know if you are successful in using this on cameras not listed below.
 
 FLIR® thermal cameras like the FLIR ONE® include both a thermal and a visual light camera.
