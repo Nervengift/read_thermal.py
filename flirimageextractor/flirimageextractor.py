@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt, cm
 from io import StringIO, BytesIO
 import numpy as np
 from loguru import logger
-
+import sys
 
 class FlirImageExtractor:
     """
@@ -276,19 +276,19 @@ class FlirImageExtractor:
 
     @staticmethod
     def raw2temp(
-        raw,
-        E=1,
-        OD=1,
-        RTemp=20,
-        ATemp=20,
-        IRWTemp=20,
-        IRT=1,
-        RH=50,
-        PR1=21106.77,
-        PB=1501,
-        PF=1,
-        PO=-7340,
-        PR2=0.012545258,
+            raw,
+            E=1,
+            OD=1,
+            RTemp=20,
+            ATemp=20,
+            IRWTemp=20,
+            IRT=1,
+            RH=50,
+            PR1=21106.77,
+            PB=1501,
+            PF=1,
+            PO=-7340,
+            PR2=0.012545258,
     ):
         """
         convert raw values from the flir sensor to temperatures in C
@@ -335,12 +335,12 @@ class FlirImageExtractor:
         raw_atm2_attn = (1 - tau2) / E / tau1 / IRT / tau2 * raw_atm2
 
         raw_obj = (
-            raw / E / tau1 / IRT / tau2
-            - raw_atm1_attn
-            - raw_atm2_attn
-            - raw_wind_attn
-            - raw_refl1_attn
-            - raw_refl2_attn
+                raw / E / tau1 / IRT / tau2
+                - raw_atm1_attn
+                - raw_atm2_attn
+                - raw_wind_attn
+                - raw_refl1_attn
+                - raw_refl2_attn
         )
 
         # temperature from radiance
@@ -387,7 +387,7 @@ class FlirImageExtractor:
         thermal_output_filename = ""
 
         if (minTemp is not None and maxTemp is None) or (
-            maxTemp is not None and minTemp is None
+                maxTemp is not None and minTemp is None
         ):
             raise Exception(
                 "Specify BOTH a maximum and minimum temperature value, or use the default by specifying neither"
@@ -402,15 +402,15 @@ class FlirImageExtractor:
             thermal_normalized = (self.thermal_image_np - minTemp) / (maxTemp - minTemp)
         else:
             thermal_normalized = (
-                self.thermal_image_np - np.amin(self.thermal_image_np)
-            ) / (np.amax(self.thermal_image_np) - np.amin(self.thermal_image_np))
+                                         self.thermal_image_np - np.amin(self.thermal_image_np)
+                                 ) / (np.amax(self.thermal_image_np) - np.amin(self.thermal_image_np))
 
         if not bytesIO:
             thermal_output_filename_array = self.flir_img_filename.split(".")
             thermal_output_filename = (
-                thermal_output_filename_array[0]
-                + "_thermal."
-                + thermal_output_filename_array[1]
+                    thermal_output_filename_array[0]
+                    + "_thermal."
+                    + thermal_output_filename_array[1]
             )
 
         return_array = []
@@ -428,11 +428,11 @@ class FlirImageExtractor:
             else:
                 filename_array = thermal_output_filename.split(".")
                 filename = (
-                    filename_array[0]
-                    + "_"
-                    + str(palette.name)
-                    + "."
-                    + filename_array[1]
+                        filename_array[0]
+                        + "_"
+                        + str(palette.name)
+                        + "."
+                        + filename_array[1]
                 )
                 if self.is_debug:
                     logger.debug("Saving Thermal image to:{}".format(filename))
