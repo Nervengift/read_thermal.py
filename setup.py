@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="flirimageextractor",
+    name="flir-image-extractor-cli",
     version="1.4.0",
     author="National Drones",
     author_email="hello@nationaldrones.com",

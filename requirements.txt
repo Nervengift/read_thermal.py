@@ -1,0 +1,11 @@
+matplotlib
+sphinx
+black
+numpy
+pillow
+m2r
+keyring
+pre-commit
+loguru
+wxpython
+black

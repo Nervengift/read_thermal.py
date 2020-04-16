@@ -2,15 +2,14 @@ import io
 import json
 import os
 import re
-import csv
 import subprocess
-from PIL import Image, ImageEnhance
-from math import sqrt, exp, log
-from matplotlib import pyplot as plt, cm
-from io import StringIO, BytesIO
+from math import sqrt, exp
+
 import numpy as np
+from PIL import Image, ImageEnhance
 from loguru import logger
-import sys
+from matplotlib import pyplot as plt, cm
+
 
 class FlirImageExtractor:
     """
@@ -426,7 +425,8 @@ class FlirImageExtractor:
                 img_thermal.save(bytes, "jpeg", quality=100)
                 return_array.append(bytes)
             else:
-                filename_array = thermal_output_filename.split(".")
+                transformed_filename = transform_filename_into_directory(thermal_output_filename, str(palette.name))
+                filename_array = transformed_filename.split(".")
                 filename = (
                         filename_array[0]
                         + "_"
@@ -441,3 +441,12 @@ class FlirImageExtractor:
                 return_array.append(filename)
 
         return return_array
+
+
+def transform_filename_into_directory(filename: str, palette: str):
+    filename_array = filename.rsplit("/", 1)
+    directory = f"{filename_array[0]}/{palette}"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    filename = f"{directory}/{filename_array[1]}"
+    return filename
