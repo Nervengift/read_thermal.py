@@ -17,7 +17,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     license="MIT",
     url="https://github.com/nationaldronesau/FlirImageExtractor",
-    packages=setuptools.find_packages(),
+    packages=["flir-image-extractor-cli"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
