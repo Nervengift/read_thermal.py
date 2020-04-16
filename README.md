@@ -4,14 +4,11 @@ The email address attached to this on PyPi may not be monitored, open issues on 
 
 Feel free to submit any pull requests or issues, this is in active development. Also let me know if you are successful in using this on cameras not listed below.
 
-FLIR® thermal cameras like the FLIR ONE® include both a thermal and a visual light camera.
-The latter is used to enhance the thermal image using an edge detector.
+FLIR® thermal cameras like the FLIR ONE® include both a thermal and a visual light camera. 
+The latter is used to enhance the thermal image using an edge detector. The resulting image is saved as a 
+jpg image but both the original visual image and the raw thermal sensor data are embedded in the jpg metadata.
 
-The resulting image is saved as a jpg image but both the original visual image and the raw thermal sensor data are embedded in the jpg metadata.
-
-This small Python cli that allows you to extract the original photo and thermal sensor values converted to temperatures, normalize the temperature range and output the photos to different color maps. 
-
-Find the docs [here](https://flirimageextractor.readthedocs.io/).
+This Python CLI that allows you to extract the original photo and thermal sensor values converted to temperatures, normalize the temperature range and output the photos to different color maps. 
 
 ## Requirements and Install
 
@@ -22,40 +19,23 @@ It also requires other python packages, *matplotlib*, *numpy* and *pillow*, whic
 ```bash
 sudo apt update
 sudo apt install exiftool
-pip install flirimageextractor
+```
+
+You can install the CLI using pip
+```bash
+pip install flir-image-extractor-cli
 ```
 
 ## Usage
 
-#### Example
+On Ubuntu you can start using the terminal.
+```bash
+flir-image-extractor-cli
+````
 
-```python
-import flirimageextractor
-from matplotlib import cm
-
-flir = flirimageextractor.FlirImageExtractor(palettes=[cm.jet, cm.bwr, cm.gist_ncar])
-flir.process_image('examples/ax8.jpg')
-flir.save_images()
-flir.plot()
-```
-This script will show an interactive plot of the thermal image using matplotlib and save three image files *ax8_thermal_jet.jpg*, *ax8_thermal_bwr.jpg*, and *ax8_thermal_gist_ncar.jpg*.
 
 #### Resulting Plot and Saved Images
-##### Plot
-![Python 2019-05-17 at 14 14 57](https://user-images.githubusercontent.com/8899750/57902766-2dd3ab00-78ae-11e9-9aba-bf033e481a34.png)
-
-##### Saved Images
-![ax8_thermal_jet](https://user-images.githubusercontent.com/8899750/57902729-0977ce80-78ae-11e9-9e7f-39800ffb7458.jpg)
-![ax8_thermal_bwr](https://user-images.githubusercontent.com/8899750/57902822-7ab78180-78ae-11e9-9aac-f4b318b086b4.jpg)
-![ax8_thermal_gist_ncar](https://user-images.githubusercontent.com/8899750/57902823-7be8ae80-78ae-11e9-8d50-20b1f1cc7818.jpg)
-
-The original temperature array is available using either the `get_thermal_np` or `export_thermal_to_csv` functions.
-
-The function `check_for_thermal_image` will check the metadata of the image to see if it contains thermal information.
-
-The functions `get_rgb_np` and `get_thermal_np` yield numpy arrays and can be called from your own script after importing this library.
-
-The function `save_image` saves the thermal image(s) in the same folder as the original image. By default it will output three images using the `bwr`, `gnuplot`, and `gist_ncar` colormaps from matplotlib. You can define the pallete(s) that you would rather use when creating the class (see example). For a list of available matplotlib colormaps click [here](https://matplotlib.org/tutorials/colors/colormaps.html). `save_images(self, min=5, max=100)` can be used to set global minimum and maximum temperature values so that multiple images can be process with the same scale.
+The CLI is able to output 3 folders of images with the `bwr`, `gnuplot`, and `gist_ncar` colormaps from matplotlib. You can define the pallete(s) that you would rather use.
 
 ## Supported/Tested Cameras
 
@@ -70,5 +50,5 @@ Install the required packages using [Pipenv](https://pipenv.kennethreitz.org/en/
 
 ## Credits
 
-Raw value to temperature conversion is ported from this R package: https://github.com/gtatters/Thermimage/blob/master/R/raw2temp.R
-Original Python code from: https://github.com/Nervengift/read_thermal.py
+This CLi was developed using this repo: 
+https://github.com/Nervengift/read_thermal.py
