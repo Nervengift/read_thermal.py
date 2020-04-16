@@ -23,5 +23,10 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
+    entry_points={
+        'console_scripts': [
+            'my_project = flir-image-extractor-cli.__main__:main'
+        ]
+    },
     install_requires=["numpy", "pillow", "matplotlib", "loguru"],
 )
