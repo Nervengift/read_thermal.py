@@ -1,4 +1,4 @@
-# Flir Image Extractor
+# Flir Image Extractor CLI
 
 The email address attached to this on PyPi may not be monitored, open issues on the [GitHub repo](https://github.com/nationaldronesau/FlirImageExtractor) to ensure a response
 
@@ -9,7 +9,7 @@ The latter is used to enhance the thermal image using an edge detector.
 
 The resulting image is saved as a jpg image but both the original visual image and the raw thermal sensor data are embedded in the jpg metadata.
 
-This small Python tool/library allows to extract the original photo and thermal sensor values converted to temperatures.
+This small Python cli that allows you to extract the original photo and thermal sensor values converted to temperatures, normalize the temperature range and output the photos to different color maps. 
 
 Find the docs [here](https://flirimageextractor.readthedocs.io/).
 
