@@ -93,7 +93,6 @@ if not (len(results_array) == 1 and output_csv):
         if custom_temperature["min"] is None or custom_temperature["min"] == "":
             continue
 
-
         custom_temperature["max"] = dialogs.custom_temperature_input("maximum")
         if custom_temperature["max"] is None or custom_temperature["max"] == "":
             continue

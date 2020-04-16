@@ -1,16 +1,21 @@
 import setuptools
+import pathlib
+
+# The directory containing this file
+HERE = pathlib.Path(__file__).parent
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="flir-image-extractor-cli",
-    version="1.4.0",
+    version="1.0.0",
     author="National Drones",
-    author_email="hello@nationaldrones.com",
-    description="A package to get thermal information out of FLIR radiometric JPGs",
+    author_email="development@nationaldrones.com",
+    description="A cli-tool to get thermal information out of FLIR radiometric JPGs",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    license="MIT",
     url="https://github.com/nationaldronesau/FlirImageExtractor",
     packages=setuptools.find_packages(),
     classifiers=[
