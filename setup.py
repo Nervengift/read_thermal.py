@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="flir-image-extractor-cli",
-    version="1.0.post1",
+    version="1.0.1.post1",
     author="National Drones",
     author_email="development@nationaldrones.com",
     description="A cli-tool to get thermal information out of FLIR radiometric JPGs",
