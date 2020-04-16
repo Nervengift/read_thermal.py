@@ -1,13 +1,13 @@
 import os
 import matplotlib
 import sys
-import dialogs
-import processing
+import flir_image_extractor_cli.dialogs as dialogs
+import flir_image_extractor_cli.processing as processing
 from loguru import logger
 from prompt_toolkit.shortcuts import ProgressBar
 from prompt_toolkit.shortcuts import message_dialog
 from matplotlib import cm
-from flir_image_extractor import FlirImageExtractor
+from flir_image_extractor_cli.flir_image_extractor import FlirImageExtractor
 from os import listdir
 from os.path import isfile, join
 

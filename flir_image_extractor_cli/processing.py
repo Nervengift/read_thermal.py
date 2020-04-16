@@ -2,7 +2,7 @@ import matplotlib
 import os
 import subprocess
 import numpy as np
-from flir_image_extractor import FlirImageExtractor
+from flir_image_extractor_cli.flir_image_extractor import FlirImageExtractor
 from loguru import logger
 from os import listdir, mkdir
 from os.path import isfile, join
