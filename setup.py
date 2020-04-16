@@ -24,8 +24,8 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     entry_points={
-        'console_scripts': [
-            'my_project = flir-image-extractor-cli.__main__:main'
+        "console_scripts": [
+            "flir-image-extractor-cli=flir_image_extractor_cli.__main__:main"
         ]
     },
     install_requires=["numpy", "pillow", "matplotlib", "loguru"],
