@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="flir-image-extractor-cli",
-    version="1.0.1.post3",
+    version="1.0.1.post4",
     author="National Drones",
     author_email="development@nationaldrones.com",
     description="A cli-tool to get thermal information out of FLIR radiometric JPGs",
@@ -28,5 +28,5 @@ setuptools.setup(
             "flir-image-extractor-cli=flir_image_extractor_cli.__main__:main"
         ]
     },
-    install_requires=["numpy", "pillow", "matplotlib", "loguru"],
+    install_requires=["numpy", "pillow", "matplotlib", "loguru", "prompt_toolkit"],
 )
