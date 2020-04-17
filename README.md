@@ -30,7 +30,7 @@ pip install flir-image-extractor-cli
 
 ## Usage
 
-On Ubuntu you can start using the terminal.
+You can start the CLI using the terminal.
 ```bash
 flir-image-extractor-cli
 ````
