@@ -275,19 +275,19 @@ class FlirImageExtractor:
 
     @staticmethod
     def raw2temp(
-            raw,
-            E=1,
-            OD=1,
-            RTemp=20,
-            ATemp=20,
-            IRWTemp=20,
-            IRT=1,
-            RH=50,
-            PR1=21106.77,
-            PB=1501,
-            PF=1,
-            PO=-7340,
-            PR2=0.012545258,
+        raw,
+        E=1,
+        OD=1,
+        RTemp=20,
+        ATemp=20,
+        IRWTemp=20,
+        IRT=1,
+        RH=50,
+        PR1=21106.77,
+        PB=1501,
+        PF=1,
+        PO=-7340,
+        PR2=0.012545258,
     ):
         """
         convert raw values from the flir sensor to temperatures in C
@@ -334,12 +334,12 @@ class FlirImageExtractor:
         raw_atm2_attn = (1 - tau2) / E / tau1 / IRT / tau2 * raw_atm2
 
         raw_obj = (
-                raw / E / tau1 / IRT / tau2
-                - raw_atm1_attn
-                - raw_atm2_attn
-                - raw_wind_attn
-                - raw_refl1_attn
-                - raw_refl2_attn
+            raw / E / tau1 / IRT / tau2
+            - raw_atm1_attn
+            - raw_atm2_attn
+            - raw_wind_attn
+            - raw_refl1_attn
+            - raw_refl2_attn
         )
 
         # temperature from radiance
@@ -386,7 +386,7 @@ class FlirImageExtractor:
         thermal_output_filename = ""
 
         if (minTemp is not None and maxTemp is None) or (
-                maxTemp is not None and minTemp is None
+            maxTemp is not None and minTemp is None
         ):
             raise Exception(
                 "Specify BOTH a maximum and minimum temperature value, or use the default by specifying neither"
@@ -401,15 +401,15 @@ class FlirImageExtractor:
             thermal_normalized = (self.thermal_image_np - minTemp) / (maxTemp - minTemp)
         else:
             thermal_normalized = (
-                                         self.thermal_image_np - np.amin(self.thermal_image_np)
-                                 ) / (np.amax(self.thermal_image_np) - np.amin(self.thermal_image_np))
+                self.thermal_image_np - np.amin(self.thermal_image_np)
+            ) / (np.amax(self.thermal_image_np) - np.amin(self.thermal_image_np))
 
         if not bytesIO:
             thermal_output_filename_array = self.flir_img_filename.split(".")
             thermal_output_filename = (
-                    thermal_output_filename_array[0]
-                    + "_thermal."
-                    + thermal_output_filename_array[1]
+                thermal_output_filename_array[0]
+                + "_thermal."
+                + thermal_output_filename_array[1]
             )
 
         return_array = []
@@ -425,14 +425,16 @@ class FlirImageExtractor:
                 img_thermal.save(bytes, "jpeg", quality=100)
                 return_array.append(bytes)
             else:
-                transformed_filename = transform_filename_into_directory(thermal_output_filename, str(palette.name))
+                transformed_filename = transform_filename_into_directory(
+                    thermal_output_filename, str(palette.name)
+                )
                 filename_array = transformed_filename.split(".")
                 filename = (
-                        filename_array[0]
-                        + "_"
-                        + str(palette.name)
-                        + "."
-                        + filename_array[1]
+                    filename_array[0]
+                    + "_"
+                    + str(palette.name)
+                    + "."
+                    + filename_array[1]
                 )
                 if self.is_debug:
                     logger.debug("Saving Thermal image to:{}".format(filename))
@@ -443,10 +445,17 @@ class FlirImageExtractor:
         return return_array
 
 
-def transform_filename_into_directory(filename: str, palette: str):
-    filename_array = filename.rsplit("/", 1)
-    directory = f"{filename_array[0]}/{palette}"
+def transform_filename_into_directory(path: str, palette: str) -> str:
+    """
+    Creates a directory for the processed files color palette, if one doesn't exist
+    :param path:
+    :param palette: the palette to create a directory for e.g. "bwr",
+    :return: The new path for the file with the directory created and inserted into the string
+    @author Conor Brosnan <c.brosnan@nationaldrones.com>
+    """
+    head, tail = os.path.split(path)
+    directory = os.path.join(head, palette)
     if not os.path.exists(directory):
         os.makedirs(directory)
-    filename = f"{directory}/{filename_array[1]}"
+    filename = os.path.join(directory, tail)
     return filename
