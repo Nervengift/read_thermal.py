@@ -5,9 +5,22 @@ import numpy as np
 from flir_image_extractor_cli.flir_image_extractor import FlirImageExtractor
 from loguru import logger
 from os import listdir, mkdir
-from os.path import isfile, join
+from os.path import isfile, join, split, splitext
 
 matplotlib.use("TkAgg")
+
+
+def get_file_name_from_path(path: str, include_extension=False) -> str:
+    """
+    Extracts the file name from a path
+    :param path:
+    :param include_extension:
+    :return:
+    """
+    head, tail = split(path)
+    if not include_extension:
+        tail = splitext(tail)[0]
+    return tail
 
 
 def fix_metadata(folder_path: str, palette_names: list, original_images: list) -> None:
@@ -23,13 +36,19 @@ def fix_metadata(folder_path: str, palette_names: list, original_images: list) -
         # Build array of outputted images from the current original image
         processed_images = []
         for palette in palette_names:
-            processed_image = "".join(image.split("/")[-1])[:-4] + f"_thermal_{palette}.JPG"
-            if isfile(join(folder_path, palette, processed_image)) and not processed_image.startswith("."):
-                processed_images.append({"palette": palette, "file_name": processed_image})
+            processed_image = get_file_name_from_path(image) + f"_thermal_{palette}.JPG"
+            if isfile(
+                join(folder_path, palette, processed_image)
+            ) and not processed_image.startswith("."):
+                processed_images.append(
+                    {"palette": palette, "file_name": processed_image}
+                )
 
         # Copy metadata from original image to processed images
         for processed_image in processed_images:
-            process_image_filename = join(folder_path, processed_image["palette"], processed_image["file_name"])
+            process_image_filename = join(
+                folder_path, processed_image["palette"], processed_image["file_name"]
+            )
             subprocess.run(["exiftool", "-tagsfromfile", image, process_image_filename])
 
     subprocess.run(["exiftool", "-delete_original!", "-r", folder_path])
@@ -50,7 +69,10 @@ def multiple_images(folder_path: str, palettes: list, custom_temperature: dict) 
     thermal_images = [
         join(folder_path, f)
         for f in listdir(folder_path)
-        if isfile(join(folder_path, f)) and f.lower().endswith(".jpg") and not f.startswith(".") and flir.check_for_thermal_image(join(folder_path, f))
+        if isfile(join(folder_path, f))
+        and f.lower().endswith(".jpg")
+        and not f.startswith(".")
+        and flir.check_for_thermal_image(join(folder_path, f))
     ]
 
     # create a folder to store everything in
@@ -63,7 +85,7 @@ def multiple_images(folder_path: str, palettes: list, custom_temperature: dict) 
 
     logger.level("SECTION", no=38, color="<yellow>", icon="🎯")
     logger.log("SECTION", "Getting thermal information for all images")
-    # for each of the thermal images, get the thermal data (and save it to disk?)
+    # for each of the thermal images, get the thermal data (and save it to disk)
     for image in thermal_images:
         flir.process_image(image)
         thermal_data = flir.get_thermal_np()
@@ -72,11 +94,7 @@ def multiple_images(folder_path: str, palettes: list, custom_temperature: dict) 
         max_values.append(np.amax(thermal_data))
         min_values.append(np.amin(thermal_data))
 
-        filename = join(
-            folder_path,
-            "thermal-data",
-            "".join("".join(image.split("/")[-1]).split(".")[:-1]),
-        )
+        filename = join(folder_path, "thermal-data", get_file_name_from_path(image))
         np.save(filename, thermal_data)
 
     # If custom temperatures were specified use those
