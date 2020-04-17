@@ -28,6 +28,11 @@ You can install the CLI using pip
 pip install flir-image-extractor-cli
 ```
 
+To update to the latest version of the CLI use. The first time you install the latest version will be automatically downloaded.
+```bash
+pip install --upgrade flir-image-extractor-cli
+```
+
 ## Usage
 
 You can start the CLI using the terminal.
