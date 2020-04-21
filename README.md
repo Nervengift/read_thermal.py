@@ -13,17 +13,18 @@ This Python CLI that allows you to extract the original photo and thermal sensor
 ## Requirements and Install
 
 This tool relies on `exiftool`. It should be available in most Linux distributions (e.g. as `perl-image-exiftool` in Arch Linux or `libimage-exiftool-perl` in Debian and Ubuntu). Links for downloading the Mac version and more information is available on the [ExifTool site](https://sno.phy.queensu.ca/~phil/exiftool/index.html).
-
-To install `exiftool` on Windows for use in this CLI, download the `exiftool` windows executable from [here](https://exiftool.org/exiftool-11.93.zip). Extract `exiftool(-k).exe` and rename to `exiftool.exe`. Copy this executable to `C:\Windows` on your computer. You will need admin permissions to do this. Doing this will make `exiftool` available to the CLI.
-
-It also requires other python packages, *matplotlib*, *numpy* and *pillow*, which are installed when installed through pip.
+To install on Linux:
 
 ```bash
 sudo apt update
 sudo apt install exiftool
 ```
 
-You can install the CLI using pip
+To install `exiftool` on Windows for use in this CLI, download the `exiftool` windows executable from [here](https://exiftool.org/exiftool-11.93.zip). Extract `exiftool(-k).exe` and rename to `exiftool.exe`. Copy this executable to `C:\Windows` on your computer. You will need admin permissions to do this. Doing this will make `exiftool` available to the CLI.
+
+It also requires other python packages, *matplotlib*, *numpy* and *pillow*, which are installed when the CLI is installed through pip.
+
+You can install the CLI using pip:
 ```bash
 pip install flir-image-extractor-cli
 ```
