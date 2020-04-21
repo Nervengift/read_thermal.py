@@ -24,7 +24,7 @@ To install `exiftool` on Windows for use in this CLI, download the `exiftool` wi
 
 It also requires other python packages, *matplotlib*, *numpy* and *pillow*, which are installed when the CLI is installed through pip.
 
-You can install the CLI using pip:
+Once you have install exiftool, you can install the CLI using pip:
 ```bash
 pip install flir-image-extractor-cli
 ```
