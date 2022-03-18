@@ -33,11 +33,11 @@ class FlirImageExtractor:
         # valid for PNG thermal images
         self.use_thumbnail = False
         self.fix_endian = True
+        self.rgb_available = True
 
         self.rgb_image_np = None
         self.thermal_image_np = None
 
-    pass
 
     def process_image(self, flir_img_filename):
         """
@@ -59,7 +59,11 @@ class FlirImageExtractor:
             self.use_thumbnail = True
             self.fix_endian = False
 
-        self.rgb_image_np = self.extract_embedded_image()
+        try:
+            self.rgb_image_np = self.extract_embedded_image()
+        except:
+            self.rgb_available = False
+            print("Embedded image not available")
         self.thermal_image_np = self.extract_thermal_image()
 
     def get_image_type(self):
@@ -208,38 +212,42 @@ class FlirImageExtractor:
         Plot the rgb + thermal image (easy to see the pixel values)
         :return:
         """
-        rgb_np = self.get_rgb_np()
         thermal_np = self.get_thermal_np()
+        if self.rgb_available:
+            rgb_np = self.get_rgb_np()
 
-        plt.subplot(1, 2, 1)
-        plt.imshow(thermal_np, cmap='hot')
-        plt.subplot(1, 2, 2)
-        plt.imshow(rgb_np)
-        plt.show()
+            plt.subplot(1, 2, 1)
+            plt.imshow(thermal_np, cmap='turbo')
+            plt.subplot(1, 2, 2)
+            plt.imshow(rgb_np)
+            plt.show()
+        else:
+            plt.imshow(thermal_np, cmap='turbo')
+            plt.show()
 
     def save_images(self):
         """
         Save the extracted images
         :return:
         """
-        rgb_np = self.get_rgb_np()
-        thermal_np = self.extract_thermal_image()
-
-        img_visual = Image.fromarray(rgb_np)
-        thermal_normalized = (thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np))
-        img_thermal = Image.fromarray(np.uint8(cm.inferno(thermal_normalized) * 255))
-
         fn_prefix, _ = os.path.splitext(self.flir_img_filename)
+
+        if self.rgb_available:
+            rgb_np = self.get_rgb_np()
+            img_visual = Image.fromarray(rgb_np)
+            image_filename = fn_prefix + self.image_suffix
+            if self.use_thumbnail:
+                image_filename = fn_prefix + self.thumbnail_suffix
+            if self.is_debug:
+                print("DEBUG Saving RGB image to:{}".format(image_filename))
+            img_visual.save(image_filename)
+
+        thermal_np = self.extract_thermal_image()
+        thermal_normalized = (thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np))
+        img_thermal = Image.fromarray(np.uint8(cm.turbo(thermal_normalized) * 255))
         thermal_filename = fn_prefix + self.thermal_suffix
-        image_filename = fn_prefix + self.image_suffix
-        if self.use_thumbnail:
-            image_filename = fn_prefix + self.thumbnail_suffix
-
         if self.is_debug:
-            print("DEBUG Saving RGB image to:{}".format(image_filename))
             print("DEBUG Saving Thermal image to:{}".format(thermal_filename))
-
-        img_visual.save(image_filename)
         img_thermal.save(thermal_filename)
 
     def export_thermal_to_csv(self, csv_filename):
