@@ -9,7 +9,6 @@ import json
 import os
 import os.path
 import re
-import csv
 import subprocess
 from PIL import Image
 from math import sqrt, exp, log
@@ -253,22 +252,12 @@ class FlirImageExtractor:
 
     def export_thermal_to_csv(self, csv_filename):
         """
-        Convert thermal data in numpy to json
+        Convert thermal data in numpy to csv
         :return:
         """
-
-        with open(csv_filename, 'w') as fh:
-            writer = csv.writer(fh, delimiter=',')
-            writer.writerow(['x', 'y', 'temp_celsius'])
-
-            pixel_values = []
-            for e in np.ndenumerate(self.thermal_image_np):
-                x, y = e[0]
-                c = e[1]
-                pixel_values.append([x, y, c])
-            if self.is_debug:
-                print("DEBUG Saving csv to: {}".format(csv_filename))
-            writer.writerows(pixel_values)
+        if self.is_debug:
+            print("DEBUG Saving csv to: {}".format(csv_filename))
+        np.savetxt(csv_filename, self.thermal_image_np, delimiter=',', fmt='%1.2f')
 
     def export_thermal_to_xls(self, xlsx_filename):
         """
@@ -291,7 +280,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--plot', help='Generate a plot using matplotlib', required=False, action='store_true')
     parser.add_argument('-exif', '--exiftool', type=str, help='Custom path to exiftool', required=False,
                         default='exiftool')
-    parser.add_argument('-csv', '--extractcsv', help='Export the thermal data per pixel encoded as csv file',
+    parser.add_argument('-csv', '--extractcsv', help='Export the thermal data matrix encoded as csv file',
                         required=False)
     parser.add_argument('-xls', '--extractxls', help='Export the thermal data per pixel encoded as xlsx file',
                         required=False)
