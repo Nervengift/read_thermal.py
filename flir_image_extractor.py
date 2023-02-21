@@ -259,7 +259,7 @@ class FlirImageExtractor:
             print("DEBUG Saving csv to: {}".format(csv_filename))
         np.savetxt(csv_filename, self.thermal_image_np, delimiter=',', fmt='%1.2f')
 
-    def export_thermal_to_xls(self, xlsx_filename):
+    def export_thermal_to_xlsx(self, xlsx_filename):
         """
         Convert thermal data in numpy to xlsx
         :return:
@@ -282,7 +282,7 @@ if __name__ == '__main__':
                         default='exiftool')
     parser.add_argument('-csv', '--extractcsv', help='Export the thermal data matrix encoded as csv file',
                         required=False)
-    parser.add_argument('-xls', '--extractxls', help='Export the thermal data per pixel encoded as xlsx file',
+    parser.add_argument('-xlsx', '--extractxlsx', help='Export the thermal data per pixel encoded as xlsx file',
                         required=False)
     parser.add_argument('-d', '--debug', help='Set the debug flag', required=False,
                         action='store_true')
@@ -297,7 +297,7 @@ if __name__ == '__main__':
     if args.extractcsv:
         fie.export_thermal_to_csv(args.extractcsv)
     
-    if args.extractxls:
-        fie.export_thermal_to_xls(args.extractxls)
+    if args.extractxlsx:
+        fie.export_thermal_to_xlsx(args.extractxlsx)
 
     fie.save_images()
