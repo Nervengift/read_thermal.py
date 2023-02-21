@@ -17,6 +17,7 @@ from matplotlib import cm
 from matplotlib import pyplot as plt
 
 import numpy as np
+import pandas as pd
 
 
 class FlirImageExtractor:
@@ -47,7 +48,7 @@ class FlirImageExtractor:
         :return:
         """
         if self.is_debug:
-            print("INFO Flir image filepath:{}".format(flir_img_filename))
+            print("INFO Flir image filepath: {}".format(flir_img_filename))
 
         if not os.path.isfile(flir_img_filename):
             raise ValueError("Input file does not exist or this user don't have permission on this file")
@@ -239,7 +240,7 @@ class FlirImageExtractor:
             if self.use_thumbnail:
                 image_filename = fn_prefix + self.thumbnail_suffix
             if self.is_debug:
-                print("DEBUG Saving RGB image to:{}".format(image_filename))
+                print("DEBUG Saving RGB image to: {}".format(image_filename))
             img_visual.save(image_filename)
 
         thermal_np = self.extract_thermal_image()
@@ -247,7 +248,7 @@ class FlirImageExtractor:
         img_thermal = Image.fromarray(np.uint8(cm.turbo(thermal_normalized) * 255))
         thermal_filename = fn_prefix + self.thermal_suffix
         if self.is_debug:
-            print("DEBUG Saving Thermal image to:{}".format(thermal_filename))
+            print("DEBUG Saving Thermal image to: {}".format(thermal_filename))
         img_thermal.save(thermal_filename)
 
     def export_thermal_to_csv(self, csv_filename):
@@ -258,15 +259,30 @@ class FlirImageExtractor:
 
         with open(csv_filename, 'w') as fh:
             writer = csv.writer(fh, delimiter=',')
-            writer.writerow(['x', 'y', 'temp (c)'])
+            writer.writerow(['x', 'y', 'temp_celsius'])
 
             pixel_values = []
             for e in np.ndenumerate(self.thermal_image_np):
                 x, y = e[0]
                 c = e[1]
                 pixel_values.append([x, y, c])
-
+            if self.is_debug:
+                print("DEBUG Saving csv to: {}".format(csv_filename))
             writer.writerows(pixel_values)
+
+    def export_thermal_to_xls(self, xlsx_filename):
+        """
+        Convert thermal data in numpy to xlsx
+        :return:
+        """
+        data = []
+        for coordinates, temp in np.ndenumerate(self.thermal_image_np):
+            x, y = coordinates
+            data.append([x, y, temp])
+        df = pd.DataFrame(data, columns=["x", "y", "temp_celsius"])
+        if self.is_debug:
+            print("DEBUG Saving xlsx to: {}".format(xlsx_filename))
+        df.to_excel(xlsx_filename, index=False)        
 
 
 if __name__ == '__main__':
@@ -276,6 +292,8 @@ if __name__ == '__main__':
     parser.add_argument('-exif', '--exiftool', type=str, help='Custom path to exiftool', required=False,
                         default='exiftool')
     parser.add_argument('-csv', '--extractcsv', help='Export the thermal data per pixel encoded as csv file',
+                        required=False)
+    parser.add_argument('-xls', '--extractxls', help='Export the thermal data per pixel encoded as xlsx file',
                         required=False)
     parser.add_argument('-d', '--debug', help='Set the debug flag', required=False,
                         action='store_true')
@@ -289,5 +307,8 @@ if __name__ == '__main__':
 
     if args.extractcsv:
         fie.export_thermal_to_csv(args.extractcsv)
+    
+    if args.extractxls:
+        fie.export_thermal_to_xls(args.extractxls)
 
     fie.save_images()
