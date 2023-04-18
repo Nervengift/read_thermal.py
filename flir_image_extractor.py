@@ -9,7 +9,6 @@ import json
 import os
 import os.path
 import re
-import csv
 import subprocess
 from PIL import Image
 from math import sqrt, exp, log
@@ -17,6 +16,7 @@ from matplotlib import cm
 from matplotlib import pyplot as plt
 
 import numpy as np
+import pandas as pd
 
 
 class FlirImageExtractor:
@@ -33,11 +33,11 @@ class FlirImageExtractor:
         # valid for PNG thermal images
         self.use_thumbnail = False
         self.fix_endian = True
+        self.rgb_available = True
 
         self.rgb_image_np = None
         self.thermal_image_np = None
 
-    pass
 
     def process_image(self, flir_img_filename):
         """
@@ -47,7 +47,7 @@ class FlirImageExtractor:
         :return:
         """
         if self.is_debug:
-            print("INFO Flir image filepath:{}".format(flir_img_filename))
+            print("INFO Flir image filepath: {}".format(flir_img_filename))
 
         if not os.path.isfile(flir_img_filename):
             raise ValueError("Input file does not exist or this user don't have permission on this file")
@@ -59,7 +59,11 @@ class FlirImageExtractor:
             self.use_thumbnail = True
             self.fix_endian = False
 
-        self.rgb_image_np = self.extract_embedded_image()
+        try:
+            self.rgb_image_np = self.extract_embedded_image()
+        except:
+            self.rgb_available = False
+            print("Embedded image not available")
         self.thermal_image_np = self.extract_thermal_image()
 
     def get_image_type(self):
@@ -208,57 +212,66 @@ class FlirImageExtractor:
         Plot the rgb + thermal image (easy to see the pixel values)
         :return:
         """
-        rgb_np = self.get_rgb_np()
         thermal_np = self.get_thermal_np()
+        if self.rgb_available:
+            rgb_np = self.get_rgb_np()
 
-        plt.subplot(1, 2, 1)
-        plt.imshow(thermal_np, cmap='hot')
-        plt.subplot(1, 2, 2)
-        plt.imshow(rgb_np)
-        plt.show()
+            plt.subplot(1, 2, 1)
+            plt.imshow(thermal_np, cmap='turbo')
+            plt.subplot(1, 2, 2)
+            plt.imshow(rgb_np)
+            plt.show()
+        else:
+            plt.imshow(thermal_np, cmap='turbo')
+            plt.show()
 
     def save_images(self):
         """
         Save the extracted images
         :return:
         """
-        rgb_np = self.get_rgb_np()
-        thermal_np = self.extract_thermal_image()
-
-        img_visual = Image.fromarray(rgb_np)
-        thermal_normalized = (thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np))
-        img_thermal = Image.fromarray(np.uint8(cm.inferno(thermal_normalized) * 255))
-
         fn_prefix, _ = os.path.splitext(self.flir_img_filename)
+
+        if self.rgb_available:
+            rgb_np = self.get_rgb_np()
+            img_visual = Image.fromarray(rgb_np)
+            image_filename = fn_prefix + self.image_suffix
+            if self.use_thumbnail:
+                image_filename = fn_prefix + self.thumbnail_suffix
+            if self.is_debug:
+                print("DEBUG Saving RGB image to: {}".format(image_filename))
+            img_visual.save(image_filename)
+
+        thermal_np = self.extract_thermal_image()
+        thermal_normalized = (thermal_np - np.amin(thermal_np)) / (np.amax(thermal_np) - np.amin(thermal_np))
+        img_thermal = Image.fromarray(np.uint8(cm.turbo(thermal_normalized) * 255))
         thermal_filename = fn_prefix + self.thermal_suffix
-        image_filename = fn_prefix + self.image_suffix
-        if self.use_thumbnail:
-            image_filename = fn_prefix + self.thumbnail_suffix
-
         if self.is_debug:
-            print("DEBUG Saving RGB image to:{}".format(image_filename))
-            print("DEBUG Saving Thermal image to:{}".format(thermal_filename))
-
-        img_visual.save(image_filename)
+            print("DEBUG Saving Thermal image to: {}".format(thermal_filename))
         img_thermal.save(thermal_filename)
 
     def export_thermal_to_csv(self, csv_filename):
         """
-        Convert thermal data in numpy to json
+        Convert thermal data in numpy to csv
         :return:
         """
+        if self.is_debug:
+            print("DEBUG Saving csv to: {}".format(csv_filename))
+        np.savetxt(csv_filename, self.thermal_image_np, delimiter=',', fmt='%1.2f')
 
-        with open(csv_filename, 'w') as fh:
-            writer = csv.writer(fh, delimiter=',')
-            writer.writerow(['x', 'y', 'temp (c)'])
-
-            pixel_values = []
-            for e in np.ndenumerate(self.thermal_image_np):
-                x, y = e[0]
-                c = e[1]
-                pixel_values.append([x, y, c])
-
-            writer.writerows(pixel_values)
+    def export_thermal_to_xlsx(self, xlsx_filename):
+        """
+        Convert thermal data in numpy to xlsx
+        :return:
+        """
+        data = []
+        for coordinates, temp in np.ndenumerate(self.thermal_image_np):
+            x, y = coordinates
+            data.append([x, y, temp])
+        df = pd.DataFrame(data, columns=["x", "y", "temp_celsius"])
+        if self.is_debug:
+            print("DEBUG Saving xlsx to: {}".format(xlsx_filename))
+        df.to_excel(xlsx_filename, index=False)        
 
 
 if __name__ == '__main__':
@@ -267,7 +280,9 @@ if __name__ == '__main__':
     parser.add_argument('-p', '--plot', help='Generate a plot using matplotlib', required=False, action='store_true')
     parser.add_argument('-exif', '--exiftool', type=str, help='Custom path to exiftool', required=False,
                         default='exiftool')
-    parser.add_argument('-csv', '--extractcsv', help='Export the thermal data per pixel encoded as csv file',
+    parser.add_argument('-csv', '--extractcsv', help='Export the thermal data matrix encoded as csv file',
+                        required=False)
+    parser.add_argument('-xlsx', '--extractxlsx', help='Export the thermal data per pixel encoded as xlsx file',
                         required=False)
     parser.add_argument('-d', '--debug', help='Set the debug flag', required=False,
                         action='store_true')
@@ -281,5 +296,8 @@ if __name__ == '__main__':
 
     if args.extractcsv:
         fie.export_thermal_to_csv(args.extractcsv)
+    
+    if args.extractxlsx:
+        fie.export_thermal_to_xlsx(args.extractxlsx)
 
     fie.save_images()

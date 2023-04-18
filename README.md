@@ -9,14 +9,12 @@ This small Python tool/library allows to extract the original photo and thermal 
 
 ## Requirements
 
-This tool relies on `exiftool`. It should be available in most Linux distributions (e.g. as `perl-image-exiftool` in Arch Linux or `libimage-exiftool-perl` in Debian and Ubuntu).
+This tool relies on `exiftool`. It should be available in most Linux distributions (e.g. as `perl-image-exiftool` in Arch Linux or `libimage-exiftool-perl` in Debian and Ubuntu). On Windows, download the portable version and use its path as the `-exif` argument.
 
-It also needs the Python packages *numpy* and *matplotlib* (the latter only if used interactively).
+In order to install all the dependencies for this repository, use the `requirements.txt` file:
 
 ```bash
-# sudo apt update
-# sudo apt install exiftool
-# sudo pip install numpy matplotlib
+pip install -r requirements.txt
 ```
 
 ## Usage
@@ -38,7 +36,7 @@ python flir_image_extractor.py -p -i 'examples/zenmuse_xtr.jpg'
 
 ```bash
 usage: flir_image_extractor.py [-h] -i INPUT [-p] [-exif EXIFTOOL]
-                               [-csv EXTRACTCSV] [-d]
+                               [-csv EXTRACTCSV] [-xlsx EXTRACTXLSX] [-d]
 
 Extract and visualize Flir Image data
 
@@ -50,7 +48,9 @@ optional arguments:
   -exif EXIFTOOL, --exiftool EXIFTOOL
                         Custom path to exiftool
   -csv EXTRACTCSV, --extractcsv EXTRACTCSV
-                        Export the thermal data per pixel encoded as csv file
+                        Export the thermal data matrix encoded as csv file
+  -xlsx EXTRACTXLSX, --extractxlsx EXTRACTXLSX
+                        Export the thermal data per pixel encoded as xlsx file
   -d, --debug           Set the debug flag
 ```
 
