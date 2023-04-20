@@ -9,3 +9,7 @@ pre-commit
 loguru
 wxpython
 black
+logzero
+opencv_python
+requests
+tqdm

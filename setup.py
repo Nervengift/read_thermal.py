@@ -28,5 +28,5 @@ setuptools.setup(
             "flir-image-extractor-cli=flir_image_extractor_cli.__main__:main"
         ]
     },
-    install_requires=["numpy", "pillow", "matplotlib", "loguru", "prompt_toolkit"],
+    install_requires=["numpy", "pillow", "matplotlib", "loguru", "prompt_toolkit","logzero","opencv_python","requests","tqdm"],
 )
